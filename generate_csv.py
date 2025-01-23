@@ -96,6 +96,7 @@ plt.xticks(range(len(merged_df['date'])), merged_df['date'], rotation=45)
 plt.xlabel('Date')
 plt.ylabel('Hours')
 plt.title('Daily Progress: Total Hours and Number of Commits')
+ax.grid(axis='y', linestyle='--', alpha=0.7)  # Add horizontal grid lines
 plt.tight_layout()
 
 # Save the plot
