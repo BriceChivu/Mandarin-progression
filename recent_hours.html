@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recent Study Hours</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #222;
+            font-family: Arial, sans-serif;
+        }
+        .chart-container {
+            width: 160px;  /* Reduced from 400px */
+            height: 180px;  /* Reduced from 600px to 30% of original */
+            margin: -105px auto 0;  /* Negative margin to bring title closer */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .bars-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0px;
+            align-items: end;
+            height: 150px;  /* Fixed height for bars area */
+        }
+        .dates-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0px;
+            margin-top: 0px;
+        }
+        .bar {
+            background-color: #444;
+            border: 1px solid white;
+            width: 40px;  /* Reduced from 80px */
+            margin: 0 auto;  /* Center the bar */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: height 0.3s ease;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+        .bar-label {
+            margin-top: -20px;  /* Reduced from -30px to move label closer to bar */
+            font-size: 14px;
+            color: white;  /* Changed from #333 */
+        }
+        .date-label {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: white;  /* Added */
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div style="text-align: center; margin-bottom: 12px; color: white;">Hours studied lately</div>
+        <div class="chart-container">
+            <div class="bars-container" id="bars"></div>
+            <div class="dates-container" id="dates"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadData() {
+            const response = await fetch('git_log_summary.csv');
+            const data = await response.text();
+            const rows = data.split('\n').slice(1)
+                .filter(row => row.trim()); // Remove empty rows
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            const previousDays = rows
+                .filter(row => row.split(',')[0] !== today)
+                .sort((a, b) => a.split(',')[0].localeCompare(b.split(',')[0])) // Sort by date
+                .slice(-3)
+                .map(row => {
+                    const [date, _, hours] = row.split(',');
+                    return { date, hours: parseFloat(hours) };
+                })
+                .filter(day => !isNaN(day.hours)); // Filter out NaN values
+
+            const bars = document.getElementById("bars");
+            const dates = document.getElementById("dates");
+            bars.innerHTML = '';
+            dates.innerHTML = '';
+            
+            const relativeDates = ['3 days ago', '2 days ago', 'yesterday'];
+            
+            previousDays.forEach((day, index) => {
+                const heightInPixels = Math.max(day.hours * 3.75, 6); // Reduced from 12.5 to 3.75px per hour (30% of original)
+                
+                // Create bar
+                const barDiv = document.createElement('div');
+                barDiv.innerHTML = `
+                    <div class="bar" style="height: ${heightInPixels}px">
+                        <span class="bar-label">${day.hours.toFixed(1)}h</span>
+                    </div>
+                `;
+                bars.appendChild(barDiv);
+
+                // Create date label
+                const dateDiv = document.createElement('div');
+                dateDiv.innerHTML = `
+                    <div class="date-label">${relativeDates[index]}</div>
+                `;
+                dates.appendChild(dateDiv);
+            });
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
