@@ -17,10 +17,23 @@
             font-family: Arial, sans-serif;
         }
         .dashboard-container {
-            display: flex;
-            align-items: flex-end;
-            gap: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;  /* Changed from auto 200px to equal fractions */
+            grid-template-rows: 70px 20px;
+            gap: 6px 40px;
             padding: 20px;
+        }
+        .grid-cell {
+            display: flex;
+            justify-content: center;
+            height: 100%;  /* Ensure cells take full height */
+        }
+        .chart-cell {
+            align-items: flex-end;
+        }
+        .legend-cell {
+            align-items: flex-end;
+            height: 20px;  /* Changed from 30px to 20px */
         }
         .chart-section {
             display: flex;
@@ -31,8 +44,10 @@
             display: flex;
             align-items: flex-end;
             gap: 10px;
-            height: 100px;
-            margin-top: 12px;  /* Added spacing after title */
+            height: 100%;
+            margin-top: 0;  /* Remove top margin */
+                width: 140px;  /* New: set fixed width for bar chart (3 bars * 40px + 2 gaps * 10px) */
+            margin: 0 auto;  /* Center the bar chart in its container */
         }
         .bar {
             width: 40px;
@@ -51,13 +66,24 @@
             font-weight: bold;
             font-size: 0.9em;
         }
-        .bar-label {
-            text-align: center;
-            margin-top: 5px;
+        .legend-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+        .legend-text {
             font-size: 0.8em;
+            margin: 0;
+            text-align: center;
+            /* width: 40px; */
+        }
+        /* Remove individual margin and size styles from these classes */
+        .bar-label, .progress-text {
+            margin: 0;
         }
         .progress-section {
-            width: 200px;  /* Changed from 400px to 200px */
+            width: 100%;  /* Changed from 200px to 100% */
         }
         .progress-container {
             width: 100%;
@@ -75,47 +101,57 @@
             transition: width 0.5s ease;
         }
         .progress-text {
-            margin-top: 10px;
+            margin-top: 0;  /* Remove top margin */
             text-align: center;
-            font-size: 1.2em;
+            font-size: 0.8em;  /* Changed from 1.2em to 0.8em to match bar-label */
+        }
+        .hours-highlight {
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 0 0 1px rgb(0, 0, 0);
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- 3-day Bar Chart -->
-        <div class="chart-section">
-            <div style="text-align: center;">Last 3 Days</div>
+        <!-- Chart Row -->
+        <div class="grid-cell chart-cell">
             <div class="bar-chart" id="bar-chart">
                 <div>
                     <div class="bar" id="day1-bar">
                         <div class="bar-hours" id="day1-hours"></div>
                     </div>
-                    <div class="bar-label" id="day1-label">3d ago</div>
                 </div>
                 <div>
                     <div class="bar" id="day2-bar">
                         <div class="bar-hours" id="day2-hours"></div>
                     </div>
-                    <div class="bar-label" id="day2-label">2d ago</div>
                 </div>
                 <div>
                     <div class="bar" id="day3-bar">
                         <div class="bar-hours" id="day3-hours"></div>
                     </div>
-                    <div class="bar-label" id="day3-label">1d ago</div>
                 </div>
             </div>
         </div>
-
-        <!-- Total Progress Bar -->
-        <div class="progress-section">
-            <div style="text-align: center; margin-bottom: 12px;">Total Progress</div>
+        <div class="grid-cell chart-cell">
             <div class="progress-container">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
-            <div class="progress-text" id="progress-text">0 / 500 hours</div>
         </div>
+
+        <!-- Legend Row -->
+        <div class="grid-cell legend-cell">
+            <div class="legend-container">
+                <div class="legend-text" id="day1-label">3d ago</div>
+                <div class="legend-text" id="day2-label">2d ago</div>
+                <div class="legend-text" id="day3-label">1d ago</div>
+            </div>
+        </div>
+        <div class="grid-cell legend-cell">
+            <div class="legend-text" id="progress-text">0 / 500 hours</div>
+        </div>
+        <!-- Title row removed -->
     </div>
 
     <script>
@@ -141,7 +177,7 @@
                 }).slice(-3);
 
                 // Update bar chart
-                const maxHeight = 100;  // Changed from 200 to 100
+                const maxHeight = 70;  // Changed from 100 to 70
                 const dailyData = relevantRows.map(row => {
                     const [date, hours] = row.split(',');
                     return { date: new Date(date), hours: parseFloat(hours) };
@@ -173,8 +209,8 @@
                 // Update progress bar
                 const percentage = (totalData.currentHours / totalHours) * 100;
                 document.getElementById('progress-bar').style.width = percentage + '%';
-                document.getElementById('progress-text').textContent = 
-                    `${Math.floor(totalData.currentHours)} / ${totalHours} hours`;
+                document.getElementById('progress-text').innerHTML = 
+                    `total: <span class="hours-highlight">${Math.floor(totalData.currentHours)}</span> / ${totalHours} hours`;
 
             } catch (error) {
                 console.error('Error updating dashboard:', error);
