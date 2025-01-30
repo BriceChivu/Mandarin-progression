@@ -61,12 +61,12 @@ with open('streaming_sessions.csv', 'w', newline='') as f:
 
 # Create visualization
 date_hours = defaultdict(float)
-date_commits = defaultdict(int)
+date_sessions = defaultdict(list)  # Changed to store individual session hours
 
-for session in data:
+for session in reversed(data):  # Reverse the data to process oldest sessions first
     started_date = session['started_date']
     date_hours[started_date] += session['hours']
-    date_commits[started_date] += 1
+    date_sessions[started_date].append(session['hours'])  # Store individual session hours
 
 # Get first and last dates
 all_dates = sorted(date_hours.keys())
@@ -83,7 +83,7 @@ while current_date <= end_date:
 
 # Prepare data for visualization with all dates
 hours = [date_hours[date] for date in complete_dates]
-commits = [date_commits[date] for date in complete_dates]
+commits = [len(date_sessions[date]) for date in complete_dates]  # Fixed: use length of sessions list
 
 # Write daily summary to CSV
 with open('daily_summary.csv', 'w', newline='') as f:
@@ -112,8 +112,21 @@ print()
 
 # Create the bar chart
 plt.figure(figsize=(15, 6))
-bars = plt.bar(complete_dates, hours)
-plt.xticks(rotation=45, ha='right')
+
+# Create segmented bars
+bar_color = '#1f77b4'  # Default matplotlib blue
+edge_color = 'white'  # Changed to white for segment separation
+
+for i, date in enumerate(complete_dates):
+    sessions = date_sessions[date]
+    if sessions:  # If there were sessions on this day
+        bottom = 0
+        for session_hours in sessions:  # Sessions are now in chronological order
+            plt.bar(i, session_hours, bottom=bottom, color=bar_color, 
+                   edgecolor=edge_color, width=0.8)
+            bottom += session_hours
+
+plt.xticks(range(len(complete_dates)), complete_dates, rotation=45, ha='right')
 plt.title('Streaming Hours per Day')
 plt.xlabel('Date')
 plt.ylabel('Hours')
@@ -121,14 +134,6 @@ plt.ylabel('Hours')
 # Add horizontal grid lines
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.gca().set_axisbelow(True)  # Put grid behind bars
-
-# Add commit counts on top of bars (only for non-zero values)
-for bar, commit_count in zip(bars, commits):
-    height = bar.get_height()
-    if commit_count > 0:  # Only show numbers for days with commits
-        plt.text(bar.get_x() + bar.get_width()/2., height,
-                f'{commit_count}',
-                ha='center', va='bottom')
 
 # Adjust layout and save
 plt.tight_layout()
