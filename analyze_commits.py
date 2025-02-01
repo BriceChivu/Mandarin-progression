@@ -113,29 +113,57 @@ print()
 # Create the bar chart
 plt.figure(figsize=(15, 6))
 
-# Create segmented bars
-bar_color = '#1f77b4'  # Default matplotlib blue
-edge_color = 'white'  # Changed to white for segment separation
+# Define colors for each month
+month_colors = {
+    1: '#1f77b4',  # January - blue
+    2: '#2ca02c',  # February - green
+    3: '#ff7f0e',  # March - orange
+    4: '#d62728',  # April - red
+    5: '#9467bd',  # May - purple
+    6: '#8c564b',  # June - brown
+    7: '#e377c2',  # July - pink
+    8: '#7f7f7f',  # August - gray
+    9: '#bcbd22',  # September - yellow-green
+    10: '#17becf', # October - cyan
+    11: '#aa40fc', # November - bright purple
+    12: '#b5bd61'  # December - olive
+}
+
+# Format dates for x-axis with separate month and year
+date_labels = [datetime.strptime(date, '%Y-%m-%d').strftime('%a %d') for date in complete_dates]
+first_date = datetime.strptime(complete_dates[0], '%Y-%m-%d')
+month = first_date.strftime('%B')
+year = first_date.strftime('%Y')
 
 for i, date in enumerate(complete_dates):
     sessions = date_sessions[date]
-    if sessions:  # If there were sessions on this day
+    if sessions:
         bottom = 0
-        for session_hours in sessions:  # Sessions are now in chronological order
+        current_month = datetime.strptime(date, '%Y-%m-%d').month
+        bar_color = month_colors[current_month]
+        for session_hours in sessions:
             plt.bar(i, session_hours, bottom=bottom, color=bar_color, 
-                   edgecolor=edge_color, width=0.8)
+                   edgecolor='white', width=0.8)
             bottom += session_hours
 
-plt.xticks(range(len(complete_dates)), complete_dates, rotation=45, ha='right')
+# Configure x-axis with dates only
+ax = plt.gca()
+ax.set_xticks(range(len(complete_dates)))
+ax.set_xticklabels(date_labels, rotation=45, ha='right')
+
+# Add month and year labels below dates
+plt.figtext(0.5, 0.08, month, ha='center', va='top')  # Month in middle
+plt.figtext(0.5, 0.02, year, ha='center', va='top')   # Year at bottom
+
 plt.title('Streaming Hours per Day')
-plt.xlabel('Date')
+plt.xlabel('')
 plt.ylabel('Hours')
 
 # Add horizontal grid lines
 plt.grid(axis='y', linestyle='--', alpha=0.7)
-plt.gca().set_axisbelow(True)  # Put grid behind bars
+plt.gca().set_axisbelow(True)
 
-# Adjust layout and save
-plt.tight_layout()
+# Adjust layout with more bottom margin for month and year labels
+plt.subplots_adjust(bottom=0.25)
 plt.savefig('progress_chart.png', dpi=300, bbox_inches='tight')
 plt.close()
