@@ -19,7 +19,7 @@
         .dashboard-container {
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: 140px 20px 60px 20px;  /* Doubled from 70px 10px 30px 10px */
+            grid-template-rows: auto 140px 20px 60px 20px;  /* Added auto for title */
             gap: 20px;  /* Doubled from 10px */
             padding: 40px;  /* Doubled from 20px */
             width: 292px;  /* Doubled from 146px */
@@ -94,7 +94,7 @@
             border-radius: 30px;  /* Doubled from 15px */
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);  /* Doubled from 10px */
-            border: 1px solid white;
+            border: 0px solid white;
         }
         .progress-bar {
             height: 100%;
@@ -149,10 +149,20 @@
             justify-content: center;
             align-items: center;
         }
+        .title {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 0;  /* Changed from 20px to 0 */
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- Title -->
+        <div class="title">Mandarin study time</div>
+        
         <!-- Bar Chart Grid -->
         <div class="bar-grid">
             <!-- First bar and label -->
