@@ -107,7 +107,17 @@ for date, hour, commit in zip(complete_dates, hours, commits):
 print("-" * 50)
 total_hours = sum(hours)
 total_sessions = sum(commits)
+total_days = len(complete_dates)
+active_days = sum(1 for h in hours if h > 0)
+avg_hours_per_session = total_hours / total_sessions if total_sessions > 0 else 0
+avg_hours_per_day = total_hours / total_days if total_days > 0 else 0
+avg_hours_per_active_day = total_hours / active_days if active_days > 0 else 0
+
 print(f"{'Total:':<12} {total_hours:>8.2f} {total_sessions:>10d}")
+print() 
+print(f"{'Avg/Session:':<12} {avg_hours_per_session:>8.2f}")
+print(f"{'Avg/Day:':<12} {avg_hours_per_day:>8.2f}")
+print(f"{'Avg/Active:':<12} {avg_hours_per_active_day:>8.2f}")
 print()
 
 # Create the bar chart
