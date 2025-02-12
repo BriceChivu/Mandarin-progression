@@ -161,9 +161,27 @@ ax = plt.gca()
 ax.set_xticks(range(len(complete_dates)))
 ax.set_xticklabels(date_labels, rotation=45, ha='right')
 
-# Add month and year labels below dates
-plt.figtext(0.5, 0.08, month, ha='center', va='top')  # Month in middle
-plt.figtext(0.5, 0.02, year, ha='center', va='top')   # Year at bottom
+# Find the indices for first and last day of each month
+current_month = datetime.strptime(complete_dates[0], '%Y-%m-%d').month
+month_start_idx = 0
+year = datetime.strptime(complete_dates[0], '%Y-%m-%d').year
+
+for i, date in enumerate(complete_dates):
+    dt = datetime.strptime(date, '%Y-%m-%d')
+    if dt.month != current_month or i == len(complete_dates) - 1:
+        # Center month label between start and end indices
+        month_center = (month_start_idx + (i - 1 if dt.month != current_month else i)) / 2
+        month_name = datetime(year, current_month, 1).strftime('%B')
+        plt.figtext(ax.get_position().x0 + (month_center / len(complete_dates)) * ax.get_position().width,
+                   0.08, month_name, ha='center', va='top')
+        
+        # Update for next month
+        current_month = dt.month
+        month_start_idx = i
+        year = dt.year
+
+# Add year label at bottom
+plt.figtext(0.5, 0.02, year, ha='center', va='top')
 
 plt.title('Streaming Hours per Day')
 plt.xlabel('')

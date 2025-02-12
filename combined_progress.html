@@ -57,14 +57,14 @@
             transition: height 0.5s ease;
             position: relative;
             border-radius: 12px 12px 0 0;  /* Doubled from 6px */
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);  /* Doubled from 10px */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);  /* Doubled from 10px */
         }
         .bar-hours {
             position: absolute;
             bottom: 10px;  /* Doubled from 5px */
             left: 50%;
             transform: translateX(-50%);
-            color: #222;
+            color: #444;
             font-weight: bold;
             font-size: 1.6em;  /* Doubled from 0.8em */
         }
@@ -93,7 +93,7 @@
             background-color: #444;
             border-radius: 30px;  /* Doubled from 15px */
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);  /* Doubled from 10px */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);  /* Doubled from 10px */
             border: 0px solid white;
         }
         .progress-bar {
@@ -151,17 +151,21 @@
         }
         .title {
             text-align: center;
-            font-size: 1.8em;
+            font-size: 1.4em;
             font-weight: bold;
             margin-bottom: 0;  /* Changed from 20px to 0 */
             color: white;
+        }
+        .hours-unit {
+            font-size: 0.6em;
+            color: #444;
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Title -->
-        <div class="title">Mandarin study time</div>
+        <div class="title">2025 Mandarin study time</div>
         
         <!-- Bar Chart Grid -->
         <div class="bar-grid">
@@ -256,7 +260,7 @@
                     const daysAgo = 3 - i;
                     barElement.style.height = `${barHeight}px`;
                     labelElement.textContent = `${daysAgo}d ago`;
-                    hoursElement.textContent = `${Math.round(data.hours)} h`;  // Changed from toFixed(1) to round and added "h"
+                    hoursElement.innerHTML = `${data.hours.toFixed(1)}<span class="hours-unit">h</span>`;  // Changed format
                 });
 
                 // Fetch total progress
