@@ -42,7 +42,7 @@
             gap: 12px;
         }
         .bar {
-            width: 100px;  /* Increased from 80px by 40% */
+            width: 80px;  /* Increased from 80px by 40% */
             background-color: white;
             border: 1px solid white;
             transition: height 0.5s ease;
@@ -57,7 +57,7 @@
             transform: translateX(-50%);
             color: #444;
             font-weight: bold;
-            font-size: 1.7em;  /* Doubled from 0.8em */
+            font-size: 1.5em;  /* Doubled from 0.8em */
         }
         .legend-container {
             display: flex;
@@ -66,7 +66,7 @@
             width: 100%;
         }
         .legend-text {
-            font-size: 1.7em;  /* Doubled from 0.8em */
+            font-size: 1.5em;  /* Doubled from 0.8em */
             margin: 0;
             text-align: center;
             /* width: 40px; */
@@ -79,10 +79,10 @@
             width: 100%;  /* Changed from 200px to 100% */
         }
         .progress-container {
-            width: 368px;  /* Adjusted to match bar grid width */
-            height: 60px;  /* Doubled from 30px */
+            width: 320px;
+            height: 60px; 
             background-color: #444;
-            border-radius: 30px;  /* Doubled from 15px */
+            border-radius: 30px; 
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);  /* Doubled from 10px */
             border: 0px solid white;
@@ -96,7 +96,7 @@
         .progress-text {
             margin-top: 0;  /* Remove top margin */
             text-align: center;
-            /* font-size: 1.7em;  */
+            /* font-size: 1.5em;  */
         }
         .hours-highlight {
             color: #ffffff;
@@ -106,10 +106,10 @@
         /* Add new grid layout for bar chart */
         .bar-grid {
             display: grid;
-            grid-template-columns: repeat(3, 112px);  /* Increased from 80px by 40% */
-            grid-template-rows: 140px 10px;  /* Doubled from 70px 5px */
-            gap: 20px;  /* Doubled from 10px */
-            width: 376px;  /* Total width: (112px * 3) + (20px * 2) */
+            grid-template-columns: repeat(3, 100px);  /* Increased from 80px by 40% */
+            grid-template-rows: 140px 10px; 
+            gap: 20px;  
+            /* width: 376px; */
             margin: 0 auto;
         }
         .bar-cell {
@@ -125,9 +125,9 @@
         /* Add new grid layout for progress section */
         .progress-grid {
             display: grid;
-            grid-template-rows: 60px 10px;  /* Doubled from 30px 5px */
-            gap: 20px;  /* Doubled from 10px */
-            width: 376px;  /* Adjusted to match bar grid width */
+            grid-template-rows: 60px 10px;  
+            gap: 20px;  
+            /* width: 37px;  */
             margin: 0 auto;
         }
         .progress-cell {
@@ -142,9 +142,9 @@
         }
         .title {
             text-align: center;
-            font-size: 1.7em;
+            font-size: 1.5em;
             font-weight: bold;
-            margin-bottom: 0;  /* Changed from 20px to 0 */
+            margin-bottom: 0; 
             color: white;
         }
         .hours-unit {
