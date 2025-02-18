@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .clock-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 40px;
+            /* Removed background-color, border-radius, and box-shadow */
+        }
+        .time {
+            font-size: 5em;  /* Increased from 4em since we have fewer characters */
+            font-weight: bold;
+            font-family: monospace;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        .date {
+            font-size: 2em;
+            color: white;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="time" id="time">00:00</div>
+        <div class="date" id="date">0000-00-00</div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            
+            // Format time without seconds
+            const time = now.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Format date
+            const date = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            
+            // Update display
+            document.getElementById('time').textContent = time;
+            document.getElementById('date').textContent = date;
+        }
+
+        // Update every second
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial update
+    </script>
+</body>
+</html>
