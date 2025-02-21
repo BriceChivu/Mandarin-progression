@@ -25,13 +25,26 @@
             /* Removed background-color, border-radius, and box-shadow */
         }
         .time {
+            display: flex;
+            align-items: baseline;  /* Changed from center to baseline */
+            gap: 10px;
             font-size: 5em;  /* Increased from 4em since we have fewer characters */
             font-weight: bold;
             font-family: monospace;
             color: white;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
+        .period {
+            font-size: 0.4em;
+            opacity: 0.8;
+            margin-bottom: 0.6em;  /* Added to fine-tune vertical alignment */
+        }
         .date {
+            font-size: 2em;
+            color: white;
+            font-family: monospace;
+        }
+        .country {
             font-size: 2em;
             color: white;
             font-family: monospace;
@@ -40,26 +53,32 @@
 </head>
 <body>
     <div class="clock-container">
-        <div class="time" id="time">00:00</div>
+        <div class="time" id="time">00:00<span class="period"></span></div>
         <div class="date" id="date">0000-00-00</div>
+        <div class="country">France 🇫🇷</div>
     </div>
 
     <script>
         function updateClock() {
             const now = new Date();
             
-            // Format time without seconds
+            // Get time and period separately
             const time = now.toLocaleTimeString('en-US', {
                 hour12: false,
                 hour: '2-digit',
                 minute: '2-digit'
             });
             
+            const period = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: 'numeric'
+            }).slice(-2);
+            
             // Format date
             const date = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
             
             // Update display
-            document.getElementById('time').textContent = time;
+            document.getElementById('time').innerHTML = `${time}<span class="period">${period}</span>`;
             document.getElementById('date').textContent = date;
         }
 
