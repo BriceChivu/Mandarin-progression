@@ -13,17 +13,16 @@
             justify-content: center;
             height: 100vh;
             background-color: #222;
-            color: white;
+            color: black;
             font-family: Arial, sans-serif;
         }
         .dashboard-container {
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: auto 140px 20px 60px 20px;  /* Added auto for title */
-            gap: 20px;  /* Doubled from 10px */
-            padding: 40px;  /* Doubled from 20px */
-            width: 376px;  /* Adjusted to match bar grid width */
-            margin: 0 auto;
+            grid-template-rows: auto 100px;  
+            /* gap: 20px;  */
+            /* width: 376px;  */
+            /* margin: 0 auto; */
         }
         .grid-cell {
             display: flex;
@@ -39,37 +38,40 @@
         .chart-section {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            /* gap: 12px; */
         }
         .bar {
-            width: 80px;  /* Increased from 80px by 40% */
-            background-color: white;
-            border: 1px solid white;
+            width: 50px; 
+            background-color: #444;
+            /* border: 1px solid #444; */
             transition: height 0.5s ease;
             position: relative;
-            border-radius: 12px 12px 0 0;  /* Doubled from 6px */
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);  /* Doubled from 10px */
+            border-radius: 12px 12px 0 0;  
+
         }
         .bar-hours {
             position: absolute;
             bottom: 10px;  /* Doubled from 5px */
             left: 50%;
             transform: translateX(-50%);
-            color: #444;
+            color: white;
             font-weight: bold;
-            font-size: 1.5em;  /* Doubled from 0.8em */
+            font-size: 0.8em;  /* Doubled from 0.8em */
+            font-family: monospace;
         }
         .legend-container {
             display: flex;
-            gap: 20px;  /* Doubled from 10px */
+            /* gap: 20px; */
             justify-content: center;
             width: 100%;
         }
         .legend-text {
-            font-size: 1.5em;  /* Doubled from 0.8em */
+            font-size: 0.8em;  /* Doubled from 0.8em */
             margin: 0;
             text-align: center;
             /* width: 40px; */
+            font-family: monospace;
+            color: black;
         }
         /* Remove individual margin and size styles from these classes */
         .bar-label, .progress-text {
@@ -79,17 +81,16 @@
             width: 100%;  /* Changed from 200px to 100% */
         }
         .progress-container {
-            width: 290px;
-            height: 60px; 
-            background-color: #444;
-            border-radius: 30px; 
+            width: 170px;
+            height: 40px; 
+            background-color: white;
+            border-radius: 15px; 
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);  /* Doubled from 10px */
-            border: 0px solid white;
+            border: 1px solid #444;  /* Added border */
         }
         .progress-bar {
             height: 100%;
-            background-color: white;
+            background-color: #444;
             width: 0%;
             transition: width 0.5s ease;
         }
@@ -99,16 +100,16 @@
             /* font-size: 1.5em;  */
         }
         .hours-highlight {
-            color: #ffffff;
+            color: black;
             font-weight: bold;
-            text-shadow: 0 0 1px rgb(0, 0, 0);
+            /* Removed text-shadow */
         }
         /* Add new grid layout for bar chart */
         .bar-grid {
             display: grid;
-            grid-template-columns: repeat(3, 100px);  /* Increased from 80px by 40% */
-            grid-template-rows: 140px 10px; 
-            gap: 20px 0px;  
+            grid-template-columns: repeat(3, 60px);  /* Increased from 80px by 40% */
+            grid-template-rows: 80px 0px;  /* Changed from 140px to 80px */
+            gap: 15px 0px;  
             /* width: 376px; */
             margin: 0 auto;
         }
@@ -125,8 +126,8 @@
         /* Add new grid layout for progress section */
         .progress-grid {
             display: grid;
-            grid-template-rows: 60px 10px;  
-            gap: 20px;  
+            grid-template-rows: 60px 0px;  
+            gap: 15px;  
             /* width: 37px;  */
             margin: 0 auto;
         }
@@ -142,20 +143,24 @@
         }
         .title {
             text-align: center;
-            font-size: 1.4em;
-            font-weight: bold;
+            font-size: 1.1em;
+            font-weight: bold;  /* Added bold */
             margin-bottom: 0; 
-            color: white;
+            padding-bottom: 15px;
+            color: black;
+            font-family: monospace;
+            /* Removed text-shadow */
         }
         .hours-unit {
-            color: #444;
-                    }
+            color: white;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Title -->
-        <div class="title">2025 Mandarin study time</div>
+        <div class="title">2025 Mandarin<br>study time</div>
         
         <!-- Bar Chart Grid -->
         <div class="bar-grid">
@@ -228,7 +233,7 @@
                 }).slice(-3);
 
                 // Update bar chart
-                const maxHeight = 140;  // Doubled from 70
+                const maxHeight = 80;  // Changed from 140 to 80
                 const dailyData = relevantRows.map(row => {
                     const [date, hours] = row.split(',');
                     return { date: new Date(date), hours: parseFloat(hours) };

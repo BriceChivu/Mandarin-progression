@@ -13,21 +13,21 @@
             justify-content: center;
             height: 100vh;
             background-color: #222;
-            color: white;
+            color: black;
             font-family: Arial, sans-serif;
         }
         .list-container {
-            width: 150px;
+            width: 380px;
             padding: 40px;
         }
         .title {
-            font-size: 1.4em;
+            font-size: 1.1em;
             font-weight: bold;
             font-family: monospace;
-            color: white;
-            text-align: center;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            color: black;
+            text-align: left;
+            margin-bottom: 10px;
+            /* padding-left: 25px; */
         }
         .bucket-list {
             list-style: none;
@@ -35,18 +35,17 @@
             margin: 0;
         }
         .bucket-list li {
-            font-size: 1.2em;
-            color: white;
+            font-size: 0.9em;
+            color: black;
             font-family: monospace;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2px 0;
             display: flex;
             align-items: flex-start;
         }
         .bucket-list li:before {
             content: "▹";
             margin-right: 10px;
-            color: white;
+            color: black;
             flex-shrink: 0;
         }
     </style>
@@ -55,7 +54,7 @@
     <div class="list-container">
         <div class="title">My Life Bucket List</div>
         <ul class="bucket-list">
-            <li>Remember as often as possible that I'll die soon so I can savor each moment</li>
+            <!-- <li>Remember as often as possible that I'll die soon so I can savor each moment</li> -->
             <li>Speak fluent Mandarin</li>
             <li>Learn to play harmonica</li>
             <li>Become a DJ</li>

@@ -13,40 +13,38 @@
             justify-content: center;
             height: 100vh;
             background-color: #222;
-            color: white;
+            color: black;
             font-family: Arial, sans-serif;
         }
         .clock-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 40px;
-            /* Removed background-color, border-radius, and box-shadow */
+            align-items: left;
+            gap: 3px;
         }
         .time {
             display: flex;
             align-items: baseline;  /* Changed from center to baseline */
             gap: 10px;
-            font-size: 5em;  /* Increased from 4em since we have fewer characters */
+            font-size: 2em;  /* Increased from 4em since we have fewer characters */
             font-weight: bold;
             font-family: monospace;
-            color: white;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            color: black;
+            /* Removed text-shadow */
         }
         .period {
             font-size: 0.4em;
             opacity: 0.8;
-            margin-bottom: 0.6em;  /* Added to fine-tune vertical alignment */
+            margin-bottom: 0.4em; 
         }
         .date {
-            font-size: 2em;
-            color: white;
+            font-size: 1em;
+            color: black;
             font-family: monospace;
         }
         .country {
-            font-size: 2em;
-            color: white;
+            font-size: 1em;
+            color: black;
             font-family: monospace;
         }
     </style>
@@ -62,17 +60,15 @@
         function updateClock() {
             const now = new Date();
             
-            // Get time and period separately
+            // Get time
             const time = now.toLocaleTimeString('en-US', {
                 hour12: false,
                 hour: '2-digit',
                 minute: '2-digit'
             });
             
-            const period = now.toLocaleTimeString('en-US', {
-                hour12: true,
-                hour: 'numeric'
-            }).slice(-2);
+            // Only show AM for morning hours (0-11)
+            const period = now.getHours() < 12 ? 'AM' : '';
             
             // Format date
             const date = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
