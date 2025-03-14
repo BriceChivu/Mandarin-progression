@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running History</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 15px;
+            background-color: #222;
+            color: black;
+            font-family: monospace;
+        }
+        .runs-container {
+            width: 100%;
+            max-width: 240px;
+            margin: 0 auto;
+            padding: 8px;
+        }
+        .run-entry {
+            font-size: 0.7em;
+            padding: 3px 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div id="runsContainer" class="runs-container"></div>
+
+    <script>
+        function getWeekdayAbbr(dateStr) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const date = new Date(dateStr);
+            return days[date.getDay()];
+        }
+
+        async function fetchRunningData() {
+            try {
+                const response = await fetch('runs.csv');
+                const csvText = await response.text();
+                const [header, ...dataRows] = csvText.trim().split('\n');
+                
+                const container = document.getElementById('runsContainer');
+                
+                dataRows
+                    .map(row => {
+                        const [date, startTime, , distance] = row.split(',');
+                        const weekday = getWeekdayAbbr(date);
+                        return { date, weekday, startTime, distance };
+                    })
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 5)
+                    .forEach(run => {
+                        const entry = document.createElement('div');
+                        entry.className = 'run-entry';
+                        entry.innerHTML = `
+                            <span>${run.date} ${run.weekday} ${run.startTime}</span>
+                            <span>${parseFloat(run.distance).toFixed(2)} km</span>
+                        `;
+                        container.appendChild(entry);
+                    });
+            } catch (error) {
+                console.error('Error fetching running data:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchRunningData);
+    </script>
+</body>
+</html>

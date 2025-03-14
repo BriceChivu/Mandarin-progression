@@ -7,59 +7,31 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            padding: 15px;
             background-color: #222;
             color: black;
-            font-family: Arial, sans-serif;
+            font-family: monospace;
         }
         .list-container {
-            width: 380px;
-            padding: 40px;
+            width: 100%;
+            max-width: 240px;
+            margin: 0 auto;
+            padding: 8px;
         }
-        .title {
-            font-size: 1.1em;
-            font-weight: bold;
-            font-family: monospace;
-            color: black;
-            text-align: left;
-            margin-bottom: 10px;
-            /* padding-left: 25px; */
-        }
-        .bucket-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .bucket-list li {
-            font-size: 0.9em;
-            color: black;
-            font-family: monospace;
-            padding: 2px 0;
+        .bucket-item {
+            font-size: 0.7em;
+            padding: 3px 8px;
             display: flex;
-            align-items: flex-start;
-        }
-        .bucket-list li:before {
-            content: "▹";
-            margin-right: 10px;
-            color: black;
-            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
     <div class="list-container">
-        <div class="title">My Life Bucket List</div>
-        <ul class="bucket-list">
-            <!-- <li>Remember as often as possible that I'll die soon so I can savor each moment</li> -->
-            <li>Speak fluent Mandarin</li>
-            <li>Learn to play harmonica</li>
-            <li>Become a DJ</li>
-            <li>Go skydiving</li>
-        </ul>
+        <div class="bucket-item">Speak fluent Mandarin</div>
+        <div class="bucket-item">Learn to play harmonica</div>
+        <div class="bucket-item">Become a DJ</div>
+        <div class="bucket-item">Run a marathon</div>
+        <div class="bucket-item">Go skydiving</div>
     </div>
 </body>
 </html>

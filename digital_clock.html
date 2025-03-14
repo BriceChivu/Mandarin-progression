@@ -20,30 +20,29 @@
             display: flex;
             flex-direction: column;
             align-items: left;
-            gap: 3px;
+            gap: 1.5px;
         }
         .time {
             display: flex;
-            align-items: baseline;  /* Changed from center to baseline */
-            gap: 10px;
-            font-size: 2em;  /* Increased from 4em since we have fewer characters */
+            align-items: baseline;
+            gap: 5px;
+            font-size: 1em;
             font-weight: bold;
             font-family: monospace;
             color: black;
-            /* Removed text-shadow */
         }
         .period {
-            font-size: 0.4em;
+            font-size: 0.2em;
             opacity: 0.8;
-            margin-bottom: 0.4em; 
+            margin-bottom: 0.2em; 
         }
         .date {
-            font-size: 1em;
+            font-size: 0.5em;
             color: black;
             font-family: monospace;
         }
         .country {
-            font-size: 1em;
+            font-size: 0.5em;
             color: black;
             font-family: monospace;
         }
@@ -52,8 +51,8 @@
 <body>
     <div class="clock-container">
         <div class="time" id="time">00:00<span class="period"></span></div>
-        <div class="date" id="date">0000-00-00</div>
-        <div class="country">France 🇫🇷</div>
+        <!-- <div class="date" id="date">0000-00-00</div> -->
+        <!-- <div class="country">France 🇫🇷</div> -->
     </div>
 
     <script>

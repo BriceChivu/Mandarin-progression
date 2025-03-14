@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Progress Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+            font-family: monospace;
+        }
+        .container {
+            display: flex;
+            width: 460px;  /* Changed from 400px */
+            margin: 0 auto;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 85px;
+            position: relative;
+        }
+        .chart {
+            height: 85px;
+            position: relative;
+            margin: 0;
+        }
+        .point {
+            fill: #444;
+            r: 4;
+        }
+        .point:hover {
+            fill: #666;
+            r: 6;
+        }
+        .line {
+            fill: none;
+            stroke: #444;
+            stroke-width: 2;
+        }
+        .point-label, .weekday-label, .week-label {
+            font-family: monospace;
+            font-size: 0.7em;
+            fill: black;
+            text-anchor: middle;
+        }
+        .week-label {
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            transform-origin: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="chart" width="460" height="85" viewBox="0 0 460 95" preserveAspectRatio="xMidYMid meet">  /* Changed width and viewBox */
+            <text class="week-label" x="-20" y="55">Last week</text>
+            <path class="line"></path>
+            <g class="points"></g>
+            <g class="weekdays"></g>
+        </svg>
+    </div>
+
+    <script>
+        const margin = { left: 40, right: 40 };
+        const width = 444 - margin.left - margin.right;  /* Changed from 384 */
+
+        async function updateDashboard() {
+            try {
+                const dailyResponse = await fetch('daily_summary.csv');
+                const dailyText = await dailyResponse.text();
+                const allRows = dailyText.trim().split('\n');
+                
+                // Find last Sunday
+                const today = new Date();
+                const lastSunday = new Date(today);
+                lastSunday.setDate(today.getDate() - today.getDay());
+                lastSunday.setHours(0, 0, 0, 0);
+
+                // Find last Monday (6 days before last Sunday)
+                const lastMonday = new Date(lastSunday);
+                lastMonday.setDate(lastSunday.getDate() - 6);
+
+                // Filter rows for the last week
+                const weekRows = allRows.filter(row => {
+                    const [date] = row.split(',');
+                    const rowDate = new Date(date);
+                    return rowDate >= lastMonday && rowDate <= lastSunday;
+                });
+
+                // Create array for all 7 days
+                const weekData = Array(7).fill().map((_, index) => {
+                    const date = new Date(lastMonday);
+                    date.setDate(date.getDate() + index);
+                    const row = weekRows.find(r => {
+                        const [rowDate] = r.split(',');
+                        return new Date(rowDate).toDateString() === date.toDateString();
+                    });
+                    return {
+                        date,
+                        hours: row ? parseFloat(row.split(',')[1]) : 0
+                    };
+                });
+
+                // D3 setup
+                const svg = d3.select('.chart');
+                const xScale = d3.scalePoint()
+                    .domain(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+                    .range([margin.left, width + margin.left])
+                    .padding(0.1);  /* Added padding for better spacing */
+                
+                const yScale = d3.scaleLinear()
+                    .domain([0, Math.max(...weekData.map(d => d.hours))])
+                    .range([65, 20]);  /* Adjusted from 55 to 65 for more height */
+
+                // Create line generator with smoothing
+                const line = d3.line()
+                    .x((d, i) => xScale(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]))
+                    .y(d => yScale(d.hours))
+                    .curve(d3.curveCatmullRom.alpha(0.5));
+
+                // Update line
+                svg.select('.line')
+                    .datum(weekData)
+                    .attr('d', line);
+
+                // Update points
+                const points = svg.select('.points')
+                    .selectAll('circle')
+                    .data(weekData);
+
+                points.enter()
+                    .append('circle')
+                    .attr('class', 'point')
+                    .merge(points)
+                    .attr('cx', (d, i) => xScale(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]))
+                    .attr('cy', d => yScale(d.hours));
+
+                // Update labels
+                const labels = svg.selectAll('.point-label')
+                    .data(weekData);
+
+                labels.enter()
+                    .append('text')
+                    .attr('class', 'point-label')
+                    .merge(labels)
+                    .attr('x', (d, i) => xScale(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]))
+                    .attr('y', d => yScale(d.hours) - 10)  /* Adjusted spacing */
+                    .text(d => d.hours.toFixed(1));
+
+                // Add weekday labels in SVG
+                const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const weekdayLabels = svg.select('.weekdays')
+                    .selectAll('text')
+                    .data(weekdays);
+
+                weekdayLabels.enter()
+                    .append('text')
+                    .attr('class', 'weekday-label')
+                    .merge(weekdayLabels)
+                    .attr('x', d => xScale(d))
+                    .attr('y', 86)  // Changed from 82 to 84
+                    .text(d => d);
+
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+            }
+        }
+
+        updateDashboard();
+    </script>
+</body>
+</html>
