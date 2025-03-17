@@ -1,4 +1,1 @@
 - why life bucket list is blur?
-- fix mandarin study time visual
-- fix total_mandarin (we need to extract from stream_time.json)
-- latest runs: add time spent running

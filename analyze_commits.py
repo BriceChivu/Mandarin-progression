@@ -159,7 +159,7 @@ for i, date in enumerate(complete_dates):
 # Configure x-axis with dates only
 ax = plt.gca()
 ax.set_xticks(range(len(complete_dates)))
-ax.set_xticklabels(date_labels, rotation=45, ha='right')
+ax.set_xticklabels(date_labels, rotation=90, ha='center')  # Changed rotation to 90 and ha to center
 
 # Find the indices for first and last day of each month
 current_month = datetime.strptime(complete_dates[0], '%Y-%m-%d').month
@@ -192,6 +192,6 @@ plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.gca().set_axisbelow(True)
 
 # Adjust layout with more bottom margin for month and year labels
-plt.subplots_adjust(bottom=0.25)
+plt.subplots_adjust(bottom=0.35)  # Increased bottom margin to accommodate vertical dates
 plt.savefig('progress_chart.png', dpi=300, bbox_inches='tight')
 plt.close()
