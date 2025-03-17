@@ -27,8 +27,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="title">Total hours<br>since 2025</div>
-        <div class="hours">268</div>
+        <div class="title">Total hours<br>in 2025</div>
+        <div class="hours">0</div>
     </div>
+    <script>
+        fetch('stream_time.json')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('.hours').textContent = Math.floor(data.currentHours);
+            })
+            .catch(error => console.error('Error loading hours:', error));
+    </script>
 </body>
 </html>

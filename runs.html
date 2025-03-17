@@ -23,6 +23,12 @@
             padding: 3px 8px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .run-entry span:nth-child(2) {
+            flex: 1;
+            text-align: center;
         }
     </style>
 </head>
@@ -30,12 +36,6 @@
     <div id="runsContainer" class="runs-container"></div>
 
     <script>
-        function getWeekdayAbbr(dateStr) {
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const date = new Date(dateStr);
-            return days[date.getDay()];
-        }
-
         async function fetchRunningData() {
             try {
                 const response = await fetch('runs.csv');
@@ -46,9 +46,8 @@
                 
                 dataRows
                     .map(row => {
-                        const [date, startTime, , distance] = row.split(',');
-                        const weekday = getWeekdayAbbr(date);
-                        return { date, weekday, startTime, distance };
+                        const [date, startTime, , time, distance] = row.split(',');
+                        return { date, startTime, time, distance: parseFloat(distance) };
                     })
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .slice(0, 5)
@@ -56,8 +55,9 @@
                         const entry = document.createElement('div');
                         entry.className = 'run-entry';
                         entry.innerHTML = `
-                            <span>${run.date} ${run.weekday} ${run.startTime}</span>
-                            <span>${parseFloat(run.distance).toFixed(2)} km</span>
+                            <span>${run.date} ${run.startTime}</span>
+                            <span>🏃‍♂️‍➡️</span>
+                            <span>${run.distance.toFixed(2)}km ${run.time}</span>
                         `;
                         container.appendChild(entry);
                     });
