@@ -1,1 +1,4 @@
 - why life bucket list is blur?
+- fix runs
+- add yesterday number of hours studied
+- fix full_year so that it works even offline

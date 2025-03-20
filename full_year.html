@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2025 Study Hours</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #222;
+            color: #000;
+            font-family: monospace;
+        }
+        .chart-container {
+            width: 52.25%;
+            margin: 10px auto;
+            height: 108px;
+        }
+        .bar {
+            fill: #000;
+            opacity: 0.8;
+        }
+        .axis text {
+            fill: #000;
+            font-family: monospace;
+            font-size: 1em;
+        }
+        .axis path,
+        .axis line {
+            stroke: none;
+        }
+        .axis-label {
+            fill: #000;
+            font-family: monospace;
+            font-size: 0.7em;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <svg id="yearChart"></svg>
+    </div>
+    <script>
+        async function loadData() {
+            try {
+                const response = await fetch('daily_summary.csv');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.text();
+                const rows = data.trim().split('\n').slice(1);
+                
+                // Generate all weeks of 2025
+                const allWeeks = [];
+                const startDate = new Date('2025-01-01');
+                const endDate = new Date('2025-12-31');
+                let currentDate = getWeekStart(startDate);
+                
+                while (currentDate <= endDate) {
+                    allWeeks.push({
+                        date: new Date(currentDate),
+                        hours: 0
+                    });
+                    currentDate.setDate(currentDate.getDate() + 7);
+                }
+
+                // Update existing data
+                const weeklyData = new Map();
+                rows.forEach(row => {
+                    const [date, hours] = row.split(',');
+                    if (!date || !hours) return;
+                    
+                    const parsedDate = new Date(date);
+                    if (isNaN(parsedDate.getTime())) return;
+                    
+                    const parsedHours = parseFloat(hours);
+                    if (isNaN(parsedHours)) return;
+                    
+                    const weekDate = getWeekStart(parsedDate);
+                    const key = weekDate.toISOString().split('T')[0];
+                    weeklyData.set(key, (weeklyData.get(key) || 0) + parsedHours);
+                });
+
+                // Merge existing data with all weeks
+                const chartData = allWeeks.map(week => {
+                    const key = week.date.toISOString().split('T')[0];
+                    return {
+                        date: week.date,
+                        hours: weeklyData.get(key) || 0
+                    };
+                });
+
+                drawChart(chartData);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Display error message on the chart
+                const container = document.querySelector('.chart-container');
+                container.innerHTML = `<p style="color: red; text-align: center;">Error loading data: ${error.message}</p>`;
+            }
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            d.setDate(d.getDate() - d.getDay() + 1); // Start from Monday
+            return d;
+        }
+
+        function drawChart(data) {
+            const container = document.querySelector('.chart-container');
+            const margin = { top: 10, right: 10, bottom: 20, left: 10 };  // Reduced left margin back
+            const width = container.clientWidth - margin.left - margin.right;
+            const height = container.clientHeight - margin.top - margin.bottom;
+
+            // Clear previous svg content
+            d3.select('#yearChart').html('');
+
+            const svg = d3.select('#yearChart')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Define scales first
+            const x = d3.scaleBand()
+                .range([0, width])
+                .padding(0.05)  // Reduced padding between bars
+                .domain(data.map(d => d.date));
+
+            const y = d3.scaleLinear()
+                .range([height, 0])
+                .domain([0, d3.max(data, d => d.hours)]);
+
+            // Add bars
+            svg.selectAll('.bar')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => x(d.date))
+                .attr('width', x.bandwidth())
+                .attr('y', d => y(d.hours))
+                .attr('height', d => height - y(d.hours));
+
+            // Add axes
+            svg.append('g')
+                .attr('class', 'axis')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x)
+                    .tickFormat(d => {
+                        const date = new Date(d);
+                        // Only show month name for the first Monday of each month
+                        if (date.getDate() <= 7 && date.getDay() === 1) {
+                            return d3.timeFormat('%b')(d);
+                        }
+                        return '';
+                    })
+                    .tickSize(0));  // Remove tick marks
+
+            // Remove y-axis label section completely
+
+        }
+
+        loadData();
+        window.addEventListener('resize', () => loadData());
+    </script>
+</body>
+</html>

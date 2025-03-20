@@ -46,18 +46,28 @@
                 
                 dataRows
                     .map(row => {
-                        const [date, startTime, , time, distance] = row.split(',');
-                        return { date, startTime, time, distance: parseFloat(distance) };
+                        const [date, startTime, time, distance] = row.split(',');
+                        return {
+                            date,
+                            startTime,
+                            time,
+                            distance: distance ? parseFloat(distance) : null
+                        };
                     })
+                    .filter(run => run.date && run.startTime) // Ensure basic data exists
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .slice(0, 5)
                     .forEach(run => {
                         const entry = document.createElement('div');
                         entry.className = 'run-entry';
+                        const distanceText = run.distance 
+                            ? `${run.distance % 1 === 0 ? run.distance : run.distance.toFixed(1)}km` 
+                            : '?km';
+                        const timeText = run.time || '??:??';
                         entry.innerHTML = `
                             <span>${run.date} ${run.startTime}</span>
                             <span>🏃‍♂️‍➡️</span>
-                            <span>${run.distance.toFixed(2)}km ${run.time}</span>
+                            <span>${distanceText} ${timeText}</span>
                         `;
                         container.appendChild(entry);
                     });
