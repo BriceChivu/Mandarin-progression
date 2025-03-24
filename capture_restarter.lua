@@ -9,7 +9,7 @@ function check_capture_status()
             local can_reactivate = obslua.obs_property_enabled(reactivate_btn)
             if can_reactivate then
                 obslua.obs_property_button_clicked(reactivate_btn, source)
-                print("Restarted screen capture")
+                print("Capture restarter lua script: Restarted screen capture")
             end
             obslua.obs_properties_destroy(properties)
         end
