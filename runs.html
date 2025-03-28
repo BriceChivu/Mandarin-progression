@@ -27,7 +27,11 @@
         }
         .run-entry span:nth-child(2) {
             flex: 1;
-            text-align: center;
+            text-align: right;  /* Changed from center to right */
+        }
+        .distance {
+            color: #4aaf07;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -65,8 +69,7 @@
                         const timeText = run.time || '??:??';
                         entry.innerHTML = `
                             <span>${run.date} ${run.startTime}</span>
-                            <span>🏃‍♂️‍➡️</span>
-                            <span>${distanceText} ${timeText}</span>
+                            <span><span class="distance">${distanceText}</span> ${timeText}</span>
                         `;
                         container.appendChild(entry);
                     });

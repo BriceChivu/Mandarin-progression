@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>2025 Study Hours</title>
+    <title>2025 Cumulative Study Hours</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -14,12 +14,17 @@
             font-family: monospace;
         }
         .chart-container {
-            width: 519px;  /* Changed from 523px (3% decrease) */
-            height: 108px;
+            width: 519px;
+            height: 119px;  /* Increased from 108px */
             margin: 0 auto;
         }
         .bar {
-            fill: #444;
+            display: none;  /* Hide bars */
+        }
+        .progress-line {
+            fill: none;
+            stroke: #4aaf07;
+            stroke-width: 2;
         }
         .month-label {
             font-family: monospace;
@@ -27,12 +32,26 @@
             fill: #444;
             text-anchor: start;
         }
+        .target-line {
+            stroke: #444;
+            stroke-width: 1;
+            stroke-dasharray: 4;
+        }
+        .current-line {
+            display: none;  /* Hide current dotted line */
+        }
+        .line-label {
+            font-family: monospace;
+            font-size: 0.7em;
+            fill: #444;
+        }
     </style>
 </head>
 <body>
     <div class="chart-container">
-        <svg id="yearChart" width="519" height="108" preserveAspectRatio="xMidYMid meet">
+        <svg id="yearChart" width="519" height="119" preserveAspectRatio="xMidYMid meet">
             <g class="bars"></g>
+            <g class="lines"></g>
             <g class="months"></g>
         </svg>
     </div>
@@ -53,8 +72,7 @@
 
         function processData(rows) {
             const weekMap = new Map();
-            // Initialize weeks starting from week 0 (Dec 30, 2024 - Jan 5, 2025)
-            for (let i = 0; i < 53; i++) {  // 53 weeks to include partial weeks
+            for (let i = 0; i < 53; i++) {
                 weekMap.set(i, 0);
             }
 
@@ -65,7 +83,6 @@
                 const parsedDate = new Date(date);
                 if (isNaN(parsedDate.getTime())) return;
                 
-                // Include Dec 30-31, 2024 for first week
                 if (parsedDate.getFullYear() === 2024 && parsedDate.getMonth() === 11 && parsedDate.getDate() >= 30) {
                     const weekKey = 0;
                     weekMap.set(weekKey, weekMap.get(weekKey) + parseFloat(hours));
@@ -83,13 +100,17 @@
                 }
             });
 
-            return Array.from({ length: 52 }, (_, i) => weekMap.get(i) || 0);
+            // Calculate cumulative sum
+            let sum = 0;
+            return Array.from({ length: 52 }, (_, i) => {
+                sum += weekMap.get(i) || 0;
+                return sum;
+            });
         }
 
         function getWeekNumber(date) {
             const d = new Date(date);
             d.setHours(0, 0, 0, 0);
-            // First week of 2025 starts on Monday, December 30, 2024
             const firstWeekStart = new Date(2024, 11, 30);
             const diff = d.getTime() - firstWeekStart.getTime();
             return Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
@@ -99,10 +120,18 @@
             const svg = d3.select('#yearChart');
             const margin = { top: 10, right: 5, bottom: 20, left: 5 };
             const width = 519 - margin.left - margin.right;
-            const height = 108 - margin.top - margin.bottom;
+            const height = 119 - margin.top - margin.bottom;  // Updated to match new height
+
+            // Calculate current week
+            const currentDate = new Date();
+            const currentWeek = getWeekNumber(currentDate);
+            
+            // Slice data to current week
+            const currentData = data.slice(0, Math.min(currentWeek + 1, data.length));
 
             // Clear previous content
             svg.selectAll('.bars *').remove();
+            svg.selectAll('.lines *').remove();
             svg.selectAll('.months *').remove();
 
             // Create scales
@@ -112,19 +141,63 @@
                 .padding(0.05);
 
             const yScale = d3.scaleLinear()
-                .domain([0, d3.max(data)])
+                .domain([0, 1000])
                 .range([height - margin.bottom, margin.top]);
 
-            // Draw bars
-            svg.select('.bars')
-                .selectAll('rect')
-                .data(data)
-                .join('rect')
-                .attr('class', 'bar')
-                .attr('x', (d, i) => xScale(i))
-                .attr('y', d => yScale(d))
-                .attr('width', xScale.bandwidth())
-                .attr('height', d => height - margin.bottom - yScale(d));
+            // Create line generator
+            const lineGenerator = d3.line()
+                .x((d, i) => xScale(i) + xScale.bandwidth() / 2)
+                .y(d => yScale(d));
+
+            // Draw progress line
+            svg.select('.lines')
+                .append('path')
+                .datum(currentData)
+                .attr('class', 'progress-line')
+                .attr('d', lineGenerator);
+
+            // Draw target line (1000 hours)
+            const targetLineEndX = width - margin.right - ((width - margin.left - margin.right) * 0.11);
+            const targetLineStartX = margin.left + 33; // Space for "goal" text
+            svg.select('.lines')
+                .append('line')
+                .attr('class', 'target-line')
+                .attr('x1', targetLineStartX)
+                .attr('x2', targetLineEndX)
+                .attr('y1', yScale(1000))
+                .attr('y2', yScale(1000));
+
+            // Add "goal" text
+            svg.select('.lines')
+                .append('text')
+                .attr('class', 'line-label')
+                .attr('x', margin.left)
+                .attr('y', yScale(1000))
+                .attr('dy', '0.15em')  // Vertical centering
+                .attr('text-anchor', 'start')
+                .text('goal');
+
+            // Add target line label
+            svg.select('.lines')
+                .append('text')
+                .attr('class', 'line-label')
+                .attr('x', targetLineEndX + 4)
+                .attr('y', yScale(1000))
+                .attr('dy', '0.15em')  // Vertical centering
+                .attr('text-anchor', 'start')
+                .text('1000h');
+
+            // Add current total label at the end of progress line
+            const currentTotal = currentData[currentData.length - 1] || 0;
+            if (currentTotal > 0) {
+                svg.select('.lines')
+                    .append('text')
+                    .attr('class', 'line-label')
+                    .attr('x', xScale(currentData.length - 1) + xScale.bandwidth() + 4)
+                    .attr('y', yScale(currentTotal))
+                    .attr('text-anchor', 'start')
+                    .text(`${Math.round(currentTotal)}h`);
+            }
 
             // Draw month labels
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
