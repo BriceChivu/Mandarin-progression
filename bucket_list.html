@@ -8,30 +8,79 @@
         body {
             margin: 0;
             padding: 15px;
-            background-color: #222;
             color: black;
             font-family: monospace;
         }
         .list-container {
             width: 100%;
-            max-width: 240px;
+            max-width: 280px;
             margin: 0 auto;
             padding: 8px;
         }
         .bucket-item {
             font-size: 0.7em;
-            padding: 3px 8px;
+            padding: 3px 8px 3px 24px;  /* Increased left padding from 20px to 24px */
             display: flex;
+            align-items: center;
+            margin-bottom: 0;  /* Remove bottom margin */
+            position: relative;
+            justify-content: space-between;
+            color: black;
+            gap: 10px;  /* Add gap to match runs.html */
+        }
+        .bucket-item::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            z-index: 1;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-60%);  /* Move dot slightly higher */
+        }
+        .bucket-item.in-progress::before {
+            background: #ffd700;
+        }
+        .bucket-item.completed::before {
+            background: #4CAF50;
+        }
+        .status {
+            font-size: 0.9em;
+            margin-left: auto;
+            color: black;
+        }
+        .in-progress .status {
+            color: #ffd700;
+        }
+        .completed .status {
+            color: #4CAF50;
         }
     </style>
 </head>
 <body>
     <div class="list-container">
-        <div class="bucket-item">Speak fluent Mandarin</div>
-        <div class="bucket-item">Learn to play harmonica</div>
-        <div class="bucket-item">Become a DJ</div>
-        <div class="bucket-item">Run a marathon</div>
-        <div class="bucket-item">Go skydiving</div>
+        <div class="bucket-item in-progress">
+            Speak fluent Mandarin
+            <span class="status">WORKING ON IT</span>
+        </div>
+        <div class="bucket-item in-progress">
+            Play the harmonica
+            <span class="status">WORKING ON IT</span>
+        </div>
+        <div class="bucket-item in-progress">
+            Run a marathon
+            <span class="status">TRAINING FOR IT</span>
+        </div>
+        <div class="bucket-item">
+            Become a DJ
+            <span class="status">NOT YET STARTED</span>
+        </div>
+        <div class="bucket-item">
+            Go skydiving
+            <span class="status">NOT DONE</span>
+        </div>
     </div>
 </body>
 </html>

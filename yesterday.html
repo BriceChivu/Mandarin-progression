@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daily Activities - 2025-03-29</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: monospace;
+        }
+        .container {
+            width: 143px;
+            margin: 0 auto;
+            padding: 10px 0;
+        }
+        .activity-bar {
+            margin: 4px 0; 
+        }
+        .bar {
+            display: none;  /* hide the bar instead of removing it completely */
+        }
+        .label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.7em;
+            color: #444;
+        }
+        .hours {
+            color: #4aaf07;
+            font-weight: bold;
+        }
+        .hours-zero {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        h1 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Activities for 2025-03-29</h1>
+        <div id="activities"></div>
+    </div>
+    <script>
+        function formatTime(hours) {
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            return h === 0 ? `${m}m` : `${h}h${m}m`;
+        }
+
+        function getYesterdayDate() {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            return date.toISOString().split('T')[0];
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('yesterday.csv');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',');
+                const activities = headers.slice(1, -1); // Skip 'date' and last empty column
+                const yesterday = getYesterdayDate();
+                
+                const dataRow = lines[1].split(',');
+                const date = dataRow[0];
+                
+                if (date === yesterday) {
+                    const data = activities
+                        .map((activity, index) => {
+                            const hours = dataRow[index + 1] || '0h';
+                            const [h, m] = hours.split('h');
+                            const decimalHours = parseFloat(h) + (m ? parseFloat(m) / 60 : 0);
+                            return {
+                                activity,
+                                hours: decimalHours
+                            };
+                        })
+                        .filter(item => item.hours > 0); // Filter out zero-hour activities
+
+                    const maxHours = Math.max(...data.map(d => d.hours));
+                    const container = document.getElementById('activities');
+                    container.innerHTML = '';
+
+                    data.forEach(item => {
+                        const width = (item.hours / maxHours * 100);
+                        const div = document.createElement('div');
+                        div.className = 'activity-bar';
+                        div.innerHTML = `
+                            <div class="label">
+                                <span>${item.activity}</span>
+                                <span class="hours ${item.hours === 0 ? 'hours-zero' : ''}">${formatTime(item.hours)}</span>
+                            </div>
+                            <div class="bar" style="width: ${width}%"></div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

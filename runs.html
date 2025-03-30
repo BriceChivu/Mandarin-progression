@@ -13,7 +13,7 @@
         }
         .runs-container {
             width: 100%;
-            max-width: 240px;
+            max-width: 170px;
             margin: 0 auto;
             padding: 8px;
         }
@@ -68,7 +68,7 @@
                             : '?km';
                         const timeText = run.time || '??:??';
                         entry.innerHTML = `
-                            <span>${run.date} ${run.startTime}</span>
+                            <span>${run.date}</span>
                             <span><span class="distance">${distanceText}</span> ${timeText}</span>
                         `;
                         container.appendChild(entry);
