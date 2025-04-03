@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bucket List</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: grey;
+            font-family: monospace;
+        }
+        .list-container {
+            width: 510px;
+            height: 238px;
+            margin: 0;
+            padding: 0;
+        }
+        .bucket-item {
+            font-size: 1.35em;
+            padding: 2px 16px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            justify-content: space-between;
+            color: white;
+            gap: 10px;
+        }
+        .bucket-item::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #666;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .bucket-item.in-progress::before {
+            background: #ffd700;
+        }
+        .bucket-item.completed::before {
+            background: #4CAF50;
+        }
+        .status {
+            font-weight: bold;
+            color: black;
+            padding: 0 4px;
+        }
+        h1 {
+            font-size: 1.4em;
+            margin: 0 0 8px 0;
+            font-weight: normal;
+            padding-left: 16px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="list-container">
+        <h1>Bucket List</h1>
+        <div class="bucket-item in-progress">
+            Speak fluent Mandarin
+            <span class="status">WORKING ON IT</span>
+        </div>
+        <div class="bucket-item in-progress">
+            Play the harmonica
+            <span class="status">WORKING ON IT</span>
+        </div>
+        <div class="bucket-item in-progress">
+            Run a marathon
+            <span class="status">TRAINING FOR IT</span>
+        </div>
+        <div class="bucket-item">
+            Become a DJ
+            <span class="status">NOT YET STARTED</span>
+        </div>
+        <div class="bucket-item">
+            Go skydiving
+            <span class="status">NOT DONE</span>
+        </div>
+    </div>
+</body>
+</html>

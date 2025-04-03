@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2025 Cumulative Study Hours</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: monospace;
+            background: grey;  /* Add black background for contrast */
+        }
+        .chart-container {
+            width: 693px;
+            height: 288px;
+            margin: 0 auto;
+        }
+        .bar {
+            display: none;  /* Hide bars */
+        }
+        .progress-line {
+            fill: none;
+            stroke: black;
+            stroke-width: 2;
+        }
+        .month-label {
+            font-family: monospace;
+            font-size: 1.05em;  /* Increased from 0.7em by 50% */
+            fill: white;
+            text-anchor: start;
+        }
+        .target-line {
+            stroke: white;
+            stroke-width: 1;
+            stroke-dasharray: 4;
+        }
+        .current-line {
+            display: none;  /* Hide current dotted line */
+        }
+        .line-label {
+            font-family: monospace;
+            font-size: 1.05em;  /* Increased from 0.7em by 50% */
+            fill: white;
+        }
+        .chart-title {
+            font-family: monospace;
+            font-size: 1.4em;
+            fill: white;
+            text-anchor: start; 
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <svg id="yearChart" width="693" height="288" viewBox="0 -48 693 336" preserveAspectRatio="xMidYMid meet">
+            <g class="bars"></g>
+            <g class="lines"></g>
+            <g class="months"></g>
+        </svg>
+    </div>
+    <script>
+        async function loadData() {
+            try {
+                const response = await fetch('daily_summary.csv');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.text();
+                const rows = data.trim().split('\n').slice(1);
+                
+                const weeklyData = processData(rows);
+                drawChart(weeklyData);
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function processData(rows) {
+            const weekMap = new Map();
+            for (let i = 0; i < 53; i++) {
+                weekMap.set(i, 0);
+            }
+
+            rows.forEach(row => {
+                const [date, hours] = row.split(',');
+                if (!date || !hours) return;
+                
+                const parsedDate = new Date(date);
+                if (isNaN(parsedDate.getTime())) return;
+                
+                if (parsedDate.getFullYear() === 2024 && parsedDate.getMonth() === 11 && parsedDate.getDate() >= 30) {
+                    const weekKey = 0;
+                    weekMap.set(weekKey, weekMap.get(weekKey) + parseFloat(hours));
+                    return;
+                }
+                
+                if (parsedDate.getFullYear() !== 2025) return;
+                
+                const parsedHours = parseFloat(hours);
+                if (isNaN(parsedHours)) return;
+                
+                const weekKey = getWeekNumber(parsedDate);
+                if (weekKey >= 0 && weekKey < 53) {
+                    weekMap.set(weekKey, weekMap.get(weekKey) + parsedHours);
+                }
+            });
+
+            // Calculate cumulative sum
+            let sum = 0;
+            return Array.from({ length: 52 }, (_, i) => {
+                sum += weekMap.get(i) || 0;
+                return sum;
+            });
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            const firstWeekStart = new Date(2024, 11, 30);
+            const diff = d.getTime() - firstWeekStart.getTime();
+            return Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
+        }
+
+        function drawChart(data) {
+            const svg = d3.select('#yearChart');
+            const margin = { top: 48, right: 25, bottom: 48, left: 25 };  // slightly adjusted horizontal margins
+            const width = 693 - margin.left - margin.right;
+            const height = 288 - margin.top - margin.bottom;
+
+            // Calculate current week
+            const currentDate = new Date();
+            const currentWeek = getWeekNumber(currentDate);
+            
+            // Slice data to current week
+            const currentData = data.slice(0, Math.min(currentWeek + 1, data.length));
+
+            // Clear previous content
+            svg.selectAll('.bars *').remove();
+            svg.selectAll('.lines *').remove();
+            svg.selectAll('.months *').remove();
+
+            // Create scales
+            const xScale = d3.scaleBand()
+                .domain(d3.range(52))
+                .range([margin.left, width - margin.right])
+                .padding(0.05);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, 1000])
+                .range([height - margin.bottom, margin.top]);
+
+            // Create line generator
+            const lineGenerator = d3.line()
+                .x((d, i) => xScale(i) + xScale.bandwidth() / 2)
+                .y(d => yScale(d));
+
+            // Add title
+            svg.append('text')
+                .attr('class', 'chart-title')
+                .attr('x', margin.left)  // Changed from width/2 to margin.left
+                .attr('y', margin.top - 40)
+                .text('2025 Mandarin tracking progress');
+
+            // Draw progress line
+            svg.select('.lines')
+                .append('path')
+                .datum(currentData)
+                .attr('class', 'progress-line')
+                .attr('d', lineGenerator);
+
+            // Draw target line (1000 hours)
+            const targetLineEndX = width - margin.right - ((width - margin.left - margin.right) * 0.17);
+            const targetLineStartX = margin.left + 33; // Space for "goal" text
+            svg.select('.lines')
+                .append('line')
+                .attr('class', 'target-line')
+                .attr('x1', targetLineStartX)
+                .attr('x2', targetLineEndX)
+                .attr('y1', yScale(1000))
+                .attr('y2', yScale(1000));
+
+            // Add "goal" text
+            svg.select('.lines')
+                .append('text')
+                .attr('class', 'line-label')
+                .attr('x', margin.left)
+                .attr('y', yScale(1000))
+                .attr('dy', '0.15em')  // Vertical centering
+                .attr('text-anchor', 'start')
+                .text('goal');
+
+            // Add target line label
+            svg.select('.lines')
+                .append('text')
+                .attr('class', 'line-label')
+                .attr('x', targetLineEndX + 4)
+                .attr('y', yScale(1000))
+                .attr('dy', '0.15em')  // Vertical centering
+                .attr('text-anchor', 'start')
+                .text('1000h');
+
+            // Add current total label at the end of progress line
+            const currentTotal = currentData[currentData.length - 1] || 0;
+            if (currentTotal > 0) {
+                svg.select('.lines')
+                    .append('text')
+                    .attr('class', 'line-label')
+                    .attr('x', xScale(currentData.length - 1) + xScale.bandwidth() + 4)
+                    .attr('y', yScale(currentTotal))
+                    .attr('text-anchor', 'start')
+                    .text(`${Math.round(currentTotal)}h`);
+            }
+
+            // Draw month labels
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                          .filter((_, i) => i % 2 === 0); // Only keep alternate months
+            
+            svg.select('.months')
+                .selectAll('text')
+                .data(months)
+                .join('text')
+                .attr('class', 'month-label')
+                .attr('x', (d, i) => margin.left + (i * 2 * (width - margin.left - margin.right) / 12)) // Multiply by 2 to account for skipped months
+                .attr('y', height - 5)
+                .text(d => d);
+
+            // Update stroke width for better visibility at larger size
+            svg.selectAll('.progress-line')
+                .style('stroke-width', '3');
+            
+            svg.selectAll('.target-line')
+                .style('stroke-width', '2');
+
+            // Update font sizes for the narrower width
+            svg.selectAll('.month-label, .line-label')
+                .style('font-size', '1.35em');  /* Increased from 0.9em by 50% */
+        }
+
+        loadData();
+        window.addEventListener('resize', loadData);
+    </script>
+</body>
+</html>

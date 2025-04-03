@@ -11,35 +11,46 @@
             justify-content: center;
             height: 100vh;
             font-family: monospace;
+            color: white;
+            background: grey;
         }
         .container {
-            width: 143px;
-            margin: 0 auto;
+            width: 510px;
+            height: 238px;
+            margin: 0;
         }
         .activity-bar {
-            margin: 1px 0;
+            font-size: 1.35em;
+            padding: 2px 16px;
         }
         .label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 2px;
-            font-size: 0.7em;
-            color: #444;
+            gap: 10px;
+            align-items: center;
         }
         .hours {
-            color: #4aaf07;
+            color: black;
             font-weight: bold;
+            padding: 0 4px;
         }
         .error-message {
             color: red;
             text-align: center;
-            font-size: 12px;
+            font-size: 1.35em;
             margin: 10px;
+        }
+        h1 {
+            font-size: 1.4em;
+            margin: 0 0 8px 0;
+            font-weight: normal;
+            padding-left: 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <h1>Yesterday's activities</h1>
         <div id="activities"></div>
         <div id="error" class="error-message"></div>
     </div>
@@ -68,7 +79,7 @@
                 if (lines.length < 2) throw new Error('No data available');
 
                 const headers = lines[0].split(',');
-                const activities = headers.slice(1, -1);
+                const activities = headers.slice(1); // Removed the -1 to include all columns
                 const yesterday = getYesterdayDate();
                 
                 // Find the row with yesterday's date
@@ -77,15 +88,15 @@
 
                 const data = activities
                     .map((activity, index) => {
-                        const hours = dataRow[index + 1] || '0h';
-                        if (!hours) return { activity, hours: 0 }; // Handle empty values
+                        const hours = dataRow[index + 1];
+                        if (!hours || hours.trim() === '') return { activity, hours: 0 };
                         const [h, m] = hours.split('h');
                         return {
                             activity,
                             hours: parseFloat(h || '0') + (m ? parseFloat(m) / 60 : 0)
                         };
                     })
-                    .filter(item => item.hours > 0);
+                    .filter(item => item.hours > 0); // Keep only non-zero activities
 
                 if (data.length === 0) throw new Error('No activities with hours found');
 

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running History</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: grey;
+            font-family: monospace;
+        }
+        .runs-container {
+            width: 510px;
+            height: 238px;
+            margin: 0;
+            padding: 0;
+        }
+        .run-entry {
+            font-size: 1.35em;
+            padding: 2px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .run-entry span:nth-child(2) {
+            flex: 1;
+            text-align: right;
+        }
+        .distance {
+            color: black;
+            padding: 0 4px;
+            font-weight: bold;
+        }
+        h1 {
+            font-size: 1.4em;
+            margin: 0 0 8px 0;
+            font-weight: normal;
+            padding-left: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="runs-container">
+        <h1>Latest runs</h1>
+        <div id="runsContainer" class="runs-container"></div>
+    </div>
+
+    <script>
+        async function fetchRunningData() {
+            try {
+                const response = await fetch('runs.csv');
+                const csvText = await response.text();
+                const [header, ...dataRows] = csvText.trim().split('\n');
+                
+                const container = document.getElementById('runsContainer');
+                
+                dataRows
+                    .map(row => {
+                        const [date, startTime, time, distance] = row.split(',');
+                        return {
+                            date,
+                            startTime,
+                            time,
+                            distance: distance ? parseFloat(distance) : null
+                        };
+                    })
+                    .filter(run => run.date && run.startTime) // Ensure basic data exists
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 5)
+                    .forEach(run => {
+                        const entry = document.createElement('div');
+                        entry.className = 'run-entry';
+                        const distanceText = run.distance 
+                            ? `${run.distance % 1 === 0 ? run.distance : run.distance.toFixed(1)}km` 
+                            : '?km';
+                        const timeText = run.time || '??:??';
+                        entry.innerHTML = `
+                            <span>${run.date}</span>
+                            <span><span class="distance">${distanceText}</span> ${timeText}</span>
+                        `;
+                        container.appendChild(entry);
+                    });
+            } catch (error) {
+                console.error('Error fetching running data:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchRunningData);
+    </script>
+</body>
+</html>

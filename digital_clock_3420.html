@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+            color: black;
+            font-family: Arial, sans-serif;
+        }
+        .clock-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+        .time {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            font-size: 2em;  /* doubled from 1em */
+            font-weight: bold;
+            font-family: monospace;
+            color: white;
+        }
+        .period {
+            font-size: 0.4em;  /* doubled from 0.2em */
+            opacity: 0.8;
+            margin-bottom: 0.2em; 
+        }
+        .date {
+            font-size: 1em;  /* doubled from 0.5em */
+            color: black;
+            font-family: monospace;
+        }
+        .country {
+            font-size: 1em;  /* doubled from 0.5em */
+            color: black;
+            font-family: monospace;
+        }
+        .flag {
+            font-size: 1.8em;  /* doubled from 0.9em */
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="flag">🇫🇷</div>
+        <div class="time" id="time">00:00<span class="period"></span></div>
+        <!-- <div class="date" id="date">0000-00-00</div> -->
+        <!-- <div class="country">France 🇫🇷</div> -->
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            
+            // Get time
+            const time = now.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Only show AM for morning hours (0-11)
+            const period = now.getHours() < 12 ? 'AM' : '';
+            
+            // Format date
+            const date = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+            
+            // Update display
+            document.getElementById('time').innerHTML = `${time}<span class="period">${period}</span>`;
+            document.getElementById('date').textContent = date;
+        }
+
+        // Update every second
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial update
+    </script>
+</body>
+</html>
