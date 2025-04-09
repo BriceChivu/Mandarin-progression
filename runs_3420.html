@@ -17,10 +17,12 @@
             font-family: monospace;
         }
         .runs-container {
-            width: 510px;
-            height: 238px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            padding: 20px;
+            width: 530px;
+            height: 110px;
             margin: 0;
-            padding: 0;
         }
         .run-entry {
             font-size: 1.35em;
@@ -63,7 +65,7 @@
 <body>
     <div class="runs-container">
         <h1>Latest runs</h1>
-        <div id="runsContainer" class="runs-container"></div>
+        <div id="runsContainer" class="runs-list"></div>
     </div>
 
     <script>
@@ -87,7 +89,7 @@
                     })
                     .filter(run => run.date && run.startTime) // Ensure basic data exists
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
-                    .slice(0, 5)
+                    .slice(0, 3)
                     .forEach((run, index) => {
                         const entry = document.createElement('div');
                         entry.className = 'run-entry';

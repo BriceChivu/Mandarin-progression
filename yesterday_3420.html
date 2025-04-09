@@ -15,11 +15,13 @@
             background: grey;
         }
         .container {
-            width: 510px;
-            height: 238px;
+            width: 530px;
+            height: 80px;
             margin: 0;
-            padding: 0;
-            display: none; /* Hide by default */
+            padding: 20px;
+            display: none;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
         }
         #activities {
             display: grid;
@@ -27,11 +29,12 @@
             gap: 0px;
             padding: 0;
             margin: 0;
+            overflow-y: auto;
         }
         .activity-bar {
             font-size: 1.35em;
             padding: 0px 16px;
-            width: 223px;
+            width: 215px;  /* Adjusted for container padding */
             opacity: 0;
             transform: translateY(10px);
             animation: fadeSlideIn 0.3s ease-out forwards;
@@ -95,26 +98,19 @@
             const container = document.querySelector('.container');
             const errorDiv = document.getElementById('error');
             try {
-                const response = await fetch('yesterday.csv');
+                const response = await fetch('yesterday.json');
                 if (!response.ok) throw new Error('Failed to fetch data');
-                const csvText = await response.text();
+                const jsonData = await response.json();
                 
-                const lines = csvText.trim().split('\n');
-                if (lines.length < 2) throw new Error('No data available');
-
-                const headers = lines[0].split(',');
-                const activities = headers.slice(1); // Removed the -1 to include all columns
                 const yesterday = getYesterdayDate();
+                const yesterdayData = jsonData.find(entry => entry.date === yesterday);
                 
-                // Find the row with yesterday's date
-                const dataRow = lines.find(line => line.startsWith(yesterday))?.split(',');
-                if (!dataRow) throw new Error(`No data for ${yesterday}`);
-
-                const data = activities
-                    .map((activity, index) => {
-                        const hours = dataRow[index + 1];
-                        if (!hours || hours.trim() === '') return { activity, hours: 0 };
-                        const [h, m] = hours.split('h');
+                if (!yesterdayData) throw new Error(`No data for ${yesterday}`);
+                
+                const activities = Object.entries(yesterdayData.activities)
+                    .map(([activity, timeStr]) => {
+                        if (!timeStr || timeStr.trim() === '') return { activity, hours: 0 };
+                        const [h, m] = timeStr.split('h');
                         return {
                             activity,
                             hours: parseFloat(h || '0') + (m ? parseFloat(m) / 60 : 0)
@@ -122,13 +118,13 @@
                     })
                     .filter(item => item.hours > 0); // Keep only non-zero activities
 
-                if (data.length === 0) throw new Error('No activities with hours found');
+                if (activities.length === 0) throw new Error('No activities with hours found');
 
-                const maxHours = Math.max(...data.map(d => d.hours));
+                const maxHours = Math.max(...activities.map(d => d.hours));
                 const activitiesDiv = document.getElementById('activities');
                 activitiesDiv.innerHTML = '';
 
-                data.forEach((item, index) => {
+                activities.forEach((item, index) => {
                     const width = (item.hours / maxHours * 100);
                     const div = document.createElement('div');
                     div.className = 'activity-bar';
@@ -143,10 +139,10 @@
                     activitiesDiv.appendChild(div);
                 });
                 
-                container.style.display = 'block'; // Show container when data is loaded
+                container.style.display = 'block';
             } catch (error) {
                 console.error('Error loading data:', error);
-                container.style.display = 'none'; // Hide container on error
+                container.style.display = 'none';
                 errorDiv.textContent = `Error: ${error.message}`;
             }
         }

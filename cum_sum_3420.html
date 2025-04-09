@@ -4,6 +4,12 @@
     <title>2025 Cumulative Study Hours</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
+        :root {
+            --container-width: 530px;
+            --container-height:200px;
+            --chart-width: 700;
+            --chart-height: 200;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -15,9 +21,15 @@
             background: grey;
         }
         .chart-container {
-            width: 693px;
-            height: 288px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            padding: 20px;
+            width: var(--container-width);
+            height: var(--container-height);
             margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .bar, .current-line {
             display: none;
@@ -42,7 +54,7 @@
         }
         .line-label, .month-label {
             font-family: monospace;
-            font-size: 1.5em;
+            font-size: 1.4em;
             fill: white;
         }
         .month-label {
@@ -50,7 +62,7 @@
         }
         .chart-title {
             font-family: monospace;
-            font-size: 1.6em;
+            font-size: 1.4em;
             fill: white;
             text-anchor: start;
         }
@@ -58,7 +70,11 @@
 </head>
 <body>
     <div class="chart-container">
-        <svg id="yearChart" width="693" height="288" viewBox="0 -48 693 336" preserveAspectRatio="xMidYMid meet">
+        <svg id="yearChart" 
+             width="var(--chart-width)" 
+             height="var(--chart-height)" 
+             viewBox="30 0 600 190"
+             preserveAspectRatio="xMidYMid meet">
             <g class="bars"></g>
             <g class="lines"></g>
             <g class="months"></g>
@@ -127,9 +143,11 @@
 
         function drawChart(data) {
             const svg = d3.select('#yearChart');
-            const margin = { top: 48, right: 25, bottom: 48, left: 25 };  // slightly adjusted horizontal margins
-            const width = 693 - margin.left - margin.right;
-            const height = 288 - margin.top - margin.bottom;
+            const margin = { top: 40, right: 40, bottom: 28, left: 40 };
+            const width = Number(getComputedStyle(document.documentElement)
+                .getPropertyValue('--chart-width'));
+            const height = Number(getComputedStyle(document.documentElement)
+                .getPropertyValue('--chart-height'));
 
             // Calculate current week
             const currentDate = new Date();
@@ -150,8 +168,9 @@
                 .padding(0.05);
 
             const yScale = d3.scaleLinear()
-                .domain([0, 1000])
-                .range([height - margin.bottom, margin.top]);
+                .domain([0, 1000])  // Keep domain exactly at 1000
+                .range([height - margin.bottom, margin.top])
+                .nice(5);  // This will ensure nice round numbers but preserve the exact 1000 value
 
             // Create line generator
             const lineGenerator = d3.line()
@@ -162,7 +181,7 @@
             svg.append('text')
                 .attr('class', 'chart-title')
                 .attr('x', margin.left)
-                .attr('y', margin.top - 45)  // Adjusted position for larger text
+                .attr('y', margin.top - 30)
                 .text('2025 Mandarin tracking progress');
 
             // Draw progress line
@@ -180,32 +199,33 @@
 
             // Draw target line (1000 hours)
             const targetLineEndX = width - margin.right - ((width - margin.left - margin.right) * 0.17);
-            const targetLineStartX = margin.left + 53; // Space for "goal" text
+            const targetLineStartX = margin.left + 53;
+            const targetY = yScale(1000);  // Store the exact Y position
             svg.select('.lines')
                 .append('line')
                 .attr('class', 'target-line')
                 .attr('x1', targetLineStartX)
                 .attr('x2', targetLineEndX)
-                .attr('y1', yScale(1000))
-                .attr('y2', yScale(1000));
+                .attr('y1', targetY)
+                .attr('y2', targetY);
 
-            // Add "goal" text
+            // Add "goal" text at exact Y position
             svg.select('.lines')
                 .append('text')
                 .attr('class', 'line-label')
                 .attr('x', margin.left)
-                .attr('y', yScale(1000))
-                .attr('dy', '0.15em')  // Vertical centering
+                .attr('y', targetY)
+                .attr('dy', '0.15em')
                 .attr('text-anchor', 'start')
                 .text('goal');
 
-            // Add target line label
+            // Add target line label at exact Y position
             svg.select('.lines')
                 .append('text')
                 .attr('class', 'line-label')
                 .attr('x', targetLineEndX + 4)
-                .attr('y', yScale(1000))
-                .attr('dy', '0.15em')  // Vertical centering
+                .attr('y', targetY)
+                .attr('dy', '0.15em')
                 .attr('text-anchor', 'start')
                 .text('1000h');
 
@@ -217,6 +237,7 @@
                     .attr('class', 'line-label')
                     .attr('x', xScale(currentData.length - 1) + xScale.bandwidth() + 4)
                     .attr('y', yScale(currentTotal))
+                    .attr('dy', '0.3em')  // Add this line to move label down
                     .attr('text-anchor', 'start')
                     .text(`${Math.round(currentTotal)}h`);
             }
@@ -231,8 +252,8 @@
                 .data(months)
                 .join('text')
                 .attr('class', 'month-label')
-                .attr('x', (d, i) => margin.left + (i * 2 * (width - margin.left - margin.right) / 12)) // Multiply by 2 to account for skipped months
-                .attr('y', height - 5)
+                .attr('x', (d, i) => margin.left + (i * 2 * (width - margin.left - margin.right) / 12))
+                .attr('y', height - margin.bottom + 20)  // Increased from 15 to 20
                 .text(d => d);
         }
 
