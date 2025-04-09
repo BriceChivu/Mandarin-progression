@@ -29,6 +29,19 @@
             justify-content: space-between;
             align-items: center;
             gap: 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeSlideIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .run-entry span:nth-child(2) {
             flex: 1;
@@ -75,9 +88,10 @@
                     .filter(run => run.date && run.startTime) // Ensure basic data exists
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .slice(0, 5)
-                    .forEach(run => {
+                    .forEach((run, index) => {
                         const entry = document.createElement('div');
                         entry.className = 'run-entry';
+                        entry.style.animationDelay = `${index * 0.1}s`;
                         const distanceText = run.distance 
                             ? `${run.distance % 1 === 0 ? run.distance : run.distance.toFixed(1)}km` 
                             : '?km';

@@ -12,45 +12,47 @@
             justify-content: center;
             height: 100vh;
             font-family: monospace;
-            background: grey;  /* Add black background for contrast */
+            background: grey;
         }
         .chart-container {
             width: 693px;
             height: 288px;
             margin: 0 auto;
         }
-        .bar {
-            display: none;  /* Hide bars */
+        .bar, .current-line {
+            display: none;
         }
         .progress-line {
             fill: none;
             stroke: black;
-            stroke-width: 2;
+            stroke-width: 5;
+            stroke-dasharray: 0;
+            animation: drawLine 2s ease-out forwards;
         }
-        .month-label {
-            font-family: monospace;
-            font-size: 1.05em;  /* Increased from 0.7em by 50% */
-            fill: white;
-            text-anchor: start;
+
+        @keyframes drawLine {
+            to {
+                stroke-dashoffset: 0;
+            }
         }
         .target-line {
             stroke: white;
-            stroke-width: 1;
+            stroke-width: 2;
             stroke-dasharray: 4;
         }
-        .current-line {
-            display: none;  /* Hide current dotted line */
-        }
-        .line-label {
+        .line-label, .month-label {
             font-family: monospace;
-            font-size: 1.05em;  /* Increased from 0.7em by 50% */
+            font-size: 1.5em;
             fill: white;
+        }
+        .month-label {
+            text-anchor: start;
         }
         .chart-title {
             font-family: monospace;
-            font-size: 1.4em;
+            font-size: 1.6em;
             fill: white;
-            text-anchor: start; 
+            text-anchor: start;
         }
     </style>
 </head>
@@ -159,8 +161,8 @@
             // Add title
             svg.append('text')
                 .attr('class', 'chart-title')
-                .attr('x', margin.left)  // Changed from width/2 to margin.left
-                .attr('y', margin.top - 40)
+                .attr('x', margin.left)
+                .attr('y', margin.top - 45)  // Adjusted position for larger text
                 .text('2025 Mandarin tracking progress');
 
             // Draw progress line
@@ -168,11 +170,17 @@
                 .append('path')
                 .datum(currentData)
                 .attr('class', 'progress-line')
-                .attr('d', lineGenerator);
+                .attr('d', lineGenerator)
+                .each(function() {
+                    const length = this.getTotalLength();
+                    d3.select(this)
+                        .style('stroke-dasharray', length)
+                        .style('stroke-dashoffset', length);
+                });
 
             // Draw target line (1000 hours)
             const targetLineEndX = width - margin.right - ((width - margin.left - margin.right) * 0.17);
-            const targetLineStartX = margin.left + 33; // Space for "goal" text
+            const targetLineStartX = margin.left + 53; // Space for "goal" text
             svg.select('.lines')
                 .append('line')
                 .attr('class', 'target-line')
@@ -226,17 +234,6 @@
                 .attr('x', (d, i) => margin.left + (i * 2 * (width - margin.left - margin.right) / 12)) // Multiply by 2 to account for skipped months
                 .attr('y', height - 5)
                 .text(d => d);
-
-            // Update stroke width for better visibility at larger size
-            svg.selectAll('.progress-line')
-                .style('stroke-width', '3');
-            
-            svg.selectAll('.target-line')
-                .style('stroke-width', '2');
-
-            // Update font sizes for the narrower width
-            svg.selectAll('.month-label, .line-label')
-                .style('font-size', '1.35em');  /* Increased from 0.9em by 50% */
         }
 
         loadData();

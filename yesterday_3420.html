@@ -18,10 +18,33 @@
             width: 510px;
             height: 238px;
             margin: 0;
+            padding: 0;
+            display: none; /* Hide by default */
+        }
+        #activities {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0px;
+            padding: 0;
+            margin: 0;
         }
         .activity-bar {
             font-size: 1.35em;
-            padding: 2px 16px;
+            padding: 0px 16px;
+            width: 223px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeSlideIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .label {
             display: flex;
@@ -69,6 +92,7 @@
         }
 
         async function loadData() {
+            const container = document.querySelector('.container');
             const errorDiv = document.getElementById('error');
             try {
                 const response = await fetch('yesterday.csv');
@@ -101,13 +125,14 @@
                 if (data.length === 0) throw new Error('No activities with hours found');
 
                 const maxHours = Math.max(...data.map(d => d.hours));
-                const container = document.getElementById('activities');
-                container.innerHTML = '';
+                const activitiesDiv = document.getElementById('activities');
+                activitiesDiv.innerHTML = '';
 
-                data.forEach(item => {
+                data.forEach((item, index) => {
                     const width = (item.hours / maxHours * 100);
                     const div = document.createElement('div');
                     div.className = 'activity-bar';
+                    div.style.animationDelay = `${index * 0.1}s`;
                     div.innerHTML = `
                         <div class="label">
                             <span>${item.activity}</span>
@@ -115,10 +140,13 @@
                         </div>
                         <div class="bar" style="width: ${width}%"></div>
                     `;
-                    container.appendChild(div);
+                    activitiesDiv.appendChild(div);
                 });
+                
+                container.style.display = 'block'; // Show container when data is loaded
             } catch (error) {
                 console.error('Error loading data:', error);
+                container.style.display = 'none'; // Hide container on error
                 errorDiv.textContent = `Error: ${error.message}`;
             }
         }

@@ -31,6 +31,19 @@
             justify-content: space-between;
             color: white;
             gap: 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeSlideIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .bucket-item::before {
             content: '';
@@ -65,24 +78,24 @@
 </head>
 <body>
     <div class="list-container">
-        <h1>Bucket List</h1>
-        <div class="bucket-item in-progress">
+        <h1>Life Bucket List</h1>
+        <div class="bucket-item in-progress" style="animation-delay: 0s">
             Speak fluent Mandarin
             <span class="status">WORKING ON IT</span>
         </div>
-        <div class="bucket-item in-progress">
+        <div class="bucket-item in-progress" style="animation-delay: 0.1s">
             Play the harmonica
             <span class="status">WORKING ON IT</span>
         </div>
-        <div class="bucket-item in-progress">
+        <div class="bucket-item in-progress" style="animation-delay: 0.2s">
             Run a marathon
             <span class="status">TRAINING FOR IT</span>
         </div>
-        <div class="bucket-item">
-            Become a DJ
+        <div class="bucket-item" style="animation-delay: 0.3s">
+            Learn to DJ
             <span class="status">NOT YET STARTED</span>
         </div>
-        <div class="bucket-item">
+        <div class="bucket-item" style="animation-delay: 0.4s">
             Go skydiving
             <span class="status">NOT DONE</span>
         </div>
