@@ -82,14 +82,32 @@
     {
       "date": "2025-04-09",
       "activities": {
-        "mandarin": "",
-        "harmonica": "0h10",
+        "mandarin": "4h15",
+        "harmonica": "0h15",
         "reading": "0h25",
         "stretching": "0h30"
       }
     },
     {
       "date": "2025-04-10",
+      "activities": {
+        "mandarin": "0h30",
+        "reading": "0h25",
+        "stretching": "0h30",
+        "movie": "2h"
+      }
+    },
+    {
+      "date": "2025-04-11",
+      "activities": {
+        "mandarin":"7h",
+        "harmonica": "0h30",
+        "reading": "0h30",
+        "stretching": "0h30"
+      }
+    },
+    {
+      "date": "2025-04-12",
       "activities": {
       }
     }
