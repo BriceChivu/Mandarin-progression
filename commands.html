@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Command Suggestions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        #suggestion {
+            font-size: 24px;
+            width: 500px;
+            text-align: right;
+        }
+        .command {
+            display: inline-block;
+            margin-left: 5px;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeSlideIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="suggestion"><span class="command">loading...</span></div>
+
+    <script>
+        let commands = [];
+
+        async function loadCommands() {
+            try {
+                const response = await fetch('commands.txt');
+                const text = await response.text();
+                commands = text.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.startsWith('!'))
+                    .map(line => line.substring(1));
+                updateSuggestion();
+            } catch (error) {
+                console.error('Error loading commands:', error);
+                document.getElementById('suggestion').textContent = 'Error loading commands';
+            }
+        }
+
+        function updateSuggestion() {
+            if (commands.length === 0) return;
+            const randomCommand = commands[Math.floor(Math.random() * commands.length)];
+            document.getElementById('suggestion').innerHTML = `<span class="command">!${randomCommand}</span>`;
+        }
+
+        loadCommands();
+        setInterval(updateSuggestion, 5000);
+    </script>
+</body>
+</html>
