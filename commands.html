@@ -17,15 +17,22 @@
         #suggestion {
             font-size: 24px;
             width: 500px;
-            text-align: right;
+            text-align: left;
         }
         .command {
             display: inline-block;
             margin-left: 5px;
             letter-spacing: 2px;
+        }
+        .command-text {
             opacity: 0;
             transform: translateY(10px);
             animation: fadeSlideIn 0.3s ease-out forwards;
+            display: inline-block;
+        }
+        .exclamation {
+            font-size: 25px;
+            font-weight: bold;
         }
         @keyframes fadeSlideIn {
             from {
@@ -63,7 +70,7 @@
         function updateSuggestion() {
             if (commands.length === 0) return;
             const randomCommand = commands[Math.floor(Math.random() * commands.length)];
-            document.getElementById('suggestion').innerHTML = `<span class="command">!${randomCommand}</span>`;
+            document.getElementById('suggestion').innerHTML = `<span class="command"><span class="exclamation">❗️</span><span class="command-text">${randomCommand}</span></span>`;
         }
 
         loadCommands();

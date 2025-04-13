@@ -110,7 +110,24 @@
       "date": "2025-04-12",
       "activities": {
         "mandarin": "5h",
-        "harmonica": ""
+        "harmonica": "0h30",
+        "stretching": "0h45"
+      }
+    },
+    {
+      "date": "2025-04-13",
+      "activities": {
+        "mandarin": "3h30"
+      }
+    },
+    {
+      "date": "2025-04-14",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-15",
+      "activities": {
       }
     }
   ]
