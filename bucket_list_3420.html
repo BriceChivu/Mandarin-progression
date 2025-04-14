@@ -52,34 +52,21 @@
                 transform: translateY(0);
             }
         }
-        .bucket-item::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #666;
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .bucket-item.in-progress::before {
-            background: #ffd700;
-        }
-        .bucket-item.completed::before {
-            background: #4CAF50;
-        }
         .status {
             font-weight: bold;
             color: black;
             padding: 0 4px;
+        }
+        .bucket-item.in-progress .status {
+            color: #e9af01;
         }
         h1 {
             font-size: 1.4em;
             margin: 0 0 8px 0;
             font-weight: normal;
             padding-left: 16px;
-            color: white;
+            color: #000000;
+            font-weight: bold;
         }
     </style>
 </head>
