@@ -126,10 +126,38 @@
     {
       "date": "2025-04-14",
       "activities": {
+        "mandarin":"5h",
+        "harmonica": "0h30",
+        "stretching": "0h45",
+        "reading": "0h30",
+        "DJ": "0h34"
       }
     },
     {
       "date": "2025-04-15",
+      "activities": {
+        "mandarin":"3h",
+        "stretching":"0h30",
+        "harmonica":"0h30",
+        "reading":"0h30",
+        "readisaDng":"0h30",
+        "reing":"0h30"
+      }
+    },
+    {
+      "date": "2025-04-16",
+      "activities": {
+        "mandarin": "4h30",
+        "reading": "0h30"
+      }
+    },
+    {
+      "date": "2025-04-17",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-18",
       "activities": {
       }
     }

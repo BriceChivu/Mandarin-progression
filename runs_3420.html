@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Running History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -14,18 +15,18 @@
             justify-content: center;
             color: white;
             background: grey;
-            font-family: monospace;
+            font-family: 'Sora', sans-serif;
         }
         .runs-container {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 30px;
             padding: 20px;
             width: 530px;
-            height: 110px;
+            height: 135px;
             margin: 0;
         }
         .run-entry {
-            font-size: 1.35em;
+            font-size: 1.5em;
             padding: 2px 16px;
             display: flex;
             justify-content: space-between;
@@ -60,7 +61,7 @@
             font-weight: bold;
         }
         h1 {
-            font-size: 1.4em;
+            font-size: 1.5em;
             margin: 0 0 8px 0;
             font-weight: normal;
             padding-left: 16px;
@@ -88,7 +89,7 @@
                     .map(row => {
                         const [date, startTime, time, distance] = row.split(',');
                         return {
-                            date,
+                            date: formatDate(date),
                             startTime,
                             time,
                             distance: distance ? parseFloat(distance) : null
@@ -114,6 +115,16 @@
             } catch (error) {
                 console.error('Error fetching running data:', error);
             }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
         }
 
         document.addEventListener('DOMContentLoaded', fetchRunningData);

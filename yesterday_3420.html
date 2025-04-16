@@ -1,45 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yesterday's stuff</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            font-family: monospace;
             color: white;
             background: grey;
+            font-family: 'Sora', sans-serif;
         }
         .container {
-            width: 530px;
-            height: 100px;
-            margin: 0;
-            padding: 20px;
-            display: none;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 30px;
-        }
-        #activities {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0px;
-            padding: 0;
+            padding: 20px;
+            width: 330px;
+            height: 240px;
             margin: 0;
-            overflow-y: auto;
+            display: none;
         }
         .activity-bar {
-            font-size: 1.35em;
-            padding: 0px 16px;
-            width: 215px;  /* Adjusted for container padding */
+            font-size: 1.5em;
+            padding: 2px 16px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            justify-content: space-between;
+            color: white;
+            gap: 10px;
             opacity: 0;
             transform: translateY(10px);
             animation: fadeSlideIn 1800.4s ease-out forwards infinite;
-            animation-delay: 0s;
-            animation-iteration-count: infinite;
             animation-duration: 1800.4s;
         }
         @keyframes fadeSlideIn {
@@ -56,29 +54,24 @@
                 transform: translateY(0);
             }
         }
-        .label {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            align-items: center;
-        }
         .hours {
-            color: black;
             font-weight: bold;
+            color: black;
             padding: 0 4px;
+        }
+        h1 {
+            font-size: 1.5em;
+            margin: 0 0 8px 0;
+            font-weight: normal;
+            padding-left: 16px;
+            color: #000000;
+            font-weight: bold;
         }
         .error-message {
             color: red;
             text-align: center;
             font-size: 1.35em;
             margin: 10px;
-        }
-        h1 {
-            font-size: 1.4em;
-            margin: 0 0 8px 0;
-            padding-left: 16px;
-            color: #000000;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -92,8 +85,8 @@
         function formatTime(hours) {
             const h = Math.floor(hours);
             const m = Math.round((hours - h) * 60);
-            if (h === 0) return `0h${m}`;
-            return m === 0 ? `${h}h` : `${h}h${m}`;
+            if (h === 0) return `${m} min`;
+            return m === 0 ? `${h} h` : `${h} h ${m}`;
         }
 
         function getYesterdayDate() {
@@ -124,25 +117,20 @@
                             hours: parseFloat(h || '0') + (m ? parseFloat(m) / 60 : 0)
                         };
                     })
-                    .filter(item => item.hours > 0); // Keep only non-zero activities
+                    .filter(item => item.hours > 0);
 
                 if (activities.length === 0) throw new Error('No activities with hours found');
 
-                const maxHours = Math.max(...activities.map(d => d.hours));
                 const activitiesDiv = document.getElementById('activities');
                 activitiesDiv.innerHTML = '';
 
                 activities.forEach((item, index) => {
-                    const width = (item.hours / maxHours * 100);
                     const div = document.createElement('div');
                     div.className = 'activity-bar';
                     div.style.animationDelay = `${index * 0.1}s`;
                     div.innerHTML = `
-                        <div class="label">
-                            <span>${item.activity}</span>
-                            <span class="hours ${item.hours === 0 ? 'hours-zero' : ''}">${formatTime(item.hours)}</span>
-                        </div>
-                        <div class="bar" style="width: ${width}%"></div>
+                        ${item.activity}
+                        <span class="hours">${formatTime(item.hours)}</span>
                     `;
                     activitiesDiv.appendChild(div);
                 });

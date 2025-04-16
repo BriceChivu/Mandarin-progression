@@ -2,39 +2,31 @@
 <html>
 <head>
     <title>2025 Cumulative Study Hours</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --container-width: 530px;
-            --container-height:190px;
-            --chart-width: 700;
-            --chart-height: 210;
-        }
         body {
+            height: 100vh;
             margin: 0;
             padding: 0;
+            font-family: 'Sora', sans-serif;
+            background: grey;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            font-family: monospace;
-            background: grey;
         }
+
         .chart-container {
+            width: 940px;
+            height: 250px;
+            margin: 0 auto;
+            padding: 10px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 30px;
-            padding: 20px;
-            width: var(--container-width);
-            height: var(--container-height);
-            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Remove the refreshChart animation */
         }
-        .bar, .current-line {
-            display: none;
-        }
+
         .progress-line {
             fill: none;
             stroke: black;
@@ -45,28 +37,26 @@
         }
 
         @keyframes drawLine {
-            0% {
-                stroke-dashoffset: 2000;
-            }
-            0.11%, 100% {
-                stroke-dashoffset: 0;
-            }
+            0% { stroke-dashoffset: 2000; }
+            0.11%, 100% { stroke-dashoffset: 0; }
         }
+
         .target-line {
             stroke: white;
             stroke-width: 2;
             stroke-dasharray: 4;
         }
+
         .line-label, .month-label {
-            font-family: monospace;
+            font-family: 'Sora', sans-serif;
             font-size: 1.4em;
             fill: white;
         }
-        .month-label {
-            text-anchor: start;
-        }
+
+        .month-label { text-anchor: start; }
+
         .chart-title {
-            font-family: monospace;
+            font-family: 'Sora', sans-serif;
             font-size: 1.5em;
             fill: rgb(0, 0, 0);
             text-anchor: start;
@@ -77,25 +67,41 @@
 <body>
     <div class="chart-container">
         <svg id="yearChart" 
-             width="var(--chart-width)" 
-             height="var(--chart-height)" 
-             viewBox="30 0 600 190"
-             preserveAspectRatio="xMidYMid meet">
-            <g class="bars"></g>
-            <g class="lines"></g>
-            <g class="months"></g>
+             width="940" 
+             height="250">
+            <text id="chartTitle" class="chart-title"></text>
+            <path id="progressLine" class="progress-line"></path>
+            <line id="targetLine" class="target-line"></line>
+            <text id="goalText" class="line-label">goal</text>
+            <text id="targetValue" class="line-label">1000 h</text>
+            <text id="currentValue" class="line-label"></text>
+            <g id="monthLabels"></g>
         </svg>
     </div>
     <script>
+        const CHART_CONFIG = {
+            left: 30,
+            right: -5,
+            top: 60,
+            bottom: 40,
+            width: 940,
+            height: 250
+        };
+
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        function init() {
+            loadData();
+            window.addEventListener('resize', loadData);
+        }
+
         async function loadData() {
             try {
                 const response = await fetch('daily_summary.csv');
                 if (!response.ok) throw new Error('Failed to fetch data');
-                const data = await response.text();
-                const rows = data.trim().split('\n').slice(1);
-                
-                const weeklyData = processData(rows);
-                drawChart(weeklyData);
+                const rows = (await response.text()).trim().split('\n').slice(1);
+                drawChart(processData(rows));
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -131,7 +137,6 @@
                 }
             });
 
-            // Calculate cumulative sum
             let sum = 0;
             return Array.from({ length: 52 }, (_, i) => {
                 sum += weekMap.get(i) || 0;
@@ -148,123 +153,83 @@
         }
 
         function drawChart(data) {
-            const svg = d3.select('#yearChart');
-            const margin = { top: 40, right: 40, bottom: 28, left: 40 };
-            const width = Number(getComputedStyle(document.documentElement)
-                .getPropertyValue('--chart-width'));
-            const height = Number(getComputedStyle(document.documentElement)
-                .getPropertyValue('--chart-height'));
-
-            // Calculate current week
-            const currentDate = new Date();
-            const currentWeek = getWeekNumber(currentDate);
-            
-            // Slice data to current week
+            const currentWeek = getWeekNumber(new Date());
             const currentData = data.slice(0, Math.min(currentWeek + 1, data.length));
-
-            // Clear previous content
-            svg.selectAll('.bars *').remove();
-            svg.selectAll('.lines *').remove();
-            svg.selectAll('.months *').remove();
-
-            // Create scales
-            const xScale = d3.scaleBand()
-                .domain(d3.range(52))
-                .range([margin.left, width - margin.right])
-                .padding(0.05);
-
-            const yScale = d3.scaleLinear()
-                .domain([0, 1000])  // Keep domain exactly at 1000
-                .range([height - margin.bottom, margin.top])
-                .nice(5);  // This will ensure nice round numbers but preserve the exact 1000 value
-
-            // Create line generator
-            const lineGenerator = d3.line()
-                .x((d, i) => xScale(i) + xScale.bandwidth() / 2)
-                .y(d => yScale(d));
-
-            // Add title
-            svg.append('text')
-                .attr('class', 'chart-title')
-                .attr('x', margin.left)
-                .attr('y', margin.top - 30)
-                .text('2025 Mandarin live streaming progress');
-
-            // Draw progress line
-            svg.select('.lines')
-                .append('path')
-                .datum(currentData)
-                .attr('class', 'progress-line')
-                .attr('d', lineGenerator)
-                .each(function() {
-                    const length = this.getTotalLength();
-                    d3.select(this)
-                        .style('stroke-dasharray', length)
-                        .style('stroke-dashoffset', length);
-                });
-
-            // Draw target line (1000 hours)
-            const targetLineEndX = width - margin.right - ((width - margin.left - margin.right) * 0.17);
-            const targetLineStartX = margin.left + 53;
-            const targetY = yScale(1000);  // Store the exact Y position
-            svg.select('.lines')
-                .append('line')
-                .attr('class', 'target-line')
-                .attr('x1', targetLineStartX)
-                .attr('x2', targetLineEndX)
-                .attr('y1', targetY)
-                .attr('y2', targetY);
-
-            // Add "goal" text at exact Y position
-            svg.select('.lines')
-                .append('text')
-                .attr('class', 'line-label')
-                .attr('x', margin.left)
-                .attr('y', targetY)
-                .attr('dy', '0.15em')
-                .attr('text-anchor', 'start')
-                .text('goal');
-
-            // Add target line label at exact Y position
-            svg.select('.lines')
-                .append('text')
-                .attr('class', 'line-label')
-                .attr('x', targetLineEndX + 4)
-                .attr('y', targetY)
-                .attr('dy', '0.15em')
-                .attr('text-anchor', 'start')
-                .text('1000h');
-
-            // Add current total label at the end of progress line
-            const currentTotal = currentData[currentData.length - 1] || 0;
-            if (currentTotal > 0) {
-                svg.select('.lines')
-                    .append('text')
-                    .attr('class', 'line-label')
-                    .attr('x', xScale(currentData.length - 1) + xScale.bandwidth() + 4)
-                    .attr('y', yScale(currentTotal))
-                    .attr('dy', '0.3em')  // Add this line to move label down
-                    .attr('text-anchor', 'start')
-                    .text(`${Math.round(currentTotal)}h`);
-            }
-
-            // Draw month labels
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                          .filter((_, i) => i % 2 === 0); // Only keep alternate months
             
-            svg.select('.months')
-                .selectAll('text')
-                .data(months)
-                .join('text')
-                .attr('class', 'month-label')
-                .attr('x', (d, i) => margin.left + (i * 2 * (width - margin.left - margin.right) / 12))
-                .attr('y', height - margin.bottom + 20)  // Increased from 15 to 20
-                .text(d => d);
+            drawTitle();
+            drawProgressLine(currentData);
+            drawTargetLine();
+            drawLabels(currentData);
+            drawMonthLabels();
         }
 
-        loadData();
-        window.addEventListener('resize', loadData);
+        function drawTitle() {
+            const title = document.getElementById('chartTitle');
+            title.setAttribute('x', CHART_CONFIG.left);
+            title.setAttribute('y', 25);
+            title.textContent = '2025 Mandarin live streaming progress';
+        }
+
+        function drawProgressLine(data) {
+            const points = data.map((value, index) => {
+                const x = CHART_CONFIG.left + (index * ((CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 51));
+                const y = CHART_CONFIG.height - CHART_CONFIG.bottom - 
+                         (value * (CHART_CONFIG.height - CHART_CONFIG.top - CHART_CONFIG.bottom) / 1000);
+                return `${x},${y}`;
+            });
+            
+            document.getElementById('progressLine')
+                .setAttribute('d', `M ${points.join(' L ')}`);
+        }
+
+        function drawTargetLine() {
+            const targetY = CHART_CONFIG.top;
+            const line = document.getElementById('targetLine');
+            line.setAttribute('x1', CHART_CONFIG.left + 53);
+            line.setAttribute('x2', CHART_CONFIG.width - CHART_CONFIG.right - 115);
+            line.setAttribute('y1', targetY);
+            line.setAttribute('y2', targetY);
+
+            const labels = {
+                goal: document.getElementById('goalText'),
+                value: document.getElementById('targetValue')
+            };
+
+            labels.goal.setAttribute('x', CHART_CONFIG.left);
+            labels.goal.setAttribute('y', targetY + 6);
+            labels.value.setAttribute('x', CHART_CONFIG.width - CHART_CONFIG.right - 109);
+            labels.value.setAttribute('y', targetY + 6);
+        }
+
+        function drawLabels(data) {
+            const currentTotal = data[data.length - 1] || 0;
+            if (currentTotal <= 0) return;
+
+            const x = CHART_CONFIG.left + ((data.length - 1) * ((CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 51));
+            const y = CHART_CONFIG.height - CHART_CONFIG.bottom - 
+                     (currentTotal * (CHART_CONFIG.height - CHART_CONFIG.top - CHART_CONFIG.bottom) / 1000);
+
+            const label = document.getElementById('currentValue');
+            label.setAttribute('x', x + 10);
+            label.setAttribute('y', y + 6);
+            label.textContent = `${Math.round(currentTotal)}h`;
+        }
+
+        function drawMonthLabels() {
+            const container = document.getElementById('monthLabels');
+            container.innerHTML = '';
+            
+            MONTHS.forEach((month, i) => {
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute('class', 'month-label');
+                text.setAttribute('x', CHART_CONFIG.left + (i * (CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 12));
+                text.setAttribute('y', CHART_CONFIG.height - 5);
+                text.textContent = month;
+                container.appendChild(text);
+            });
+        }
+
+        init();
     </script>
 </body>
 </html>

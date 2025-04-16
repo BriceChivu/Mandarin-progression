@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bucket List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -14,18 +15,18 @@
             justify-content: center;
             color: white;
             background: grey;
-            font-family: monospace;
+            font-family: 'Sora', sans-serif;
         }
         .list-container {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 30px;
             padding: 20px;
             width: 530px;
-            height: 180px;
+            height: 240px;
             margin: 0;
         }
         .bucket-item {
-            font-size: 1.35em;
+            font-size: 1.5em;
             padding: 2px 16px;
             display: flex;
             align-items: center;
@@ -54,14 +55,22 @@
         }
         .status {
             font-weight: bold;
-            color: black;
             padding: 0 4px;
         }
-        .bucket-item.in-progress .status {
-            color: #e9af01;
+        
+        /* Color classes */
+        .color-yellow {
+            color: #f6c637;
         }
+        .color-black {
+            color: black;
+        }
+        .color-gray {
+            color: #d0d0d0;
+        }
+        
         h1 {
-            font-size: 1.4em;
+            font-size: 1.5em;
             margin: 0 0 8px 0;
             font-weight: normal;
             padding-left: 16px;
@@ -75,23 +84,23 @@
         <h1>Life Bucket List</h1>
         <div class="bucket-item in-progress" style="animation-delay: 0s">
             Speak fluent Mandarin
-            <span class="status">WORKING ON IT</span>
+            <span class="status color-yellow">WIP</span>
         </div>
         <div class="bucket-item in-progress" style="animation-delay: 0.1s">
             Play the harmonica
-            <span class="status">WORKING ON IT</span>
+            <span class="status color-yellow">WIP</span>
         </div>
         <div class="bucket-item in-progress" style="animation-delay: 0.2s">
-            Run a marathon
-            <span class="status">TRAINING FOR IT</span>
+            Learn to DJ
+            <span class="status color-yellow">WIP</span>
         </div>
         <div class="bucket-item in-progress" style="animation-delay: 0.3s">
-            Learn to DJ
-            <span class="status">WORKING ON IT</span>
+            Run a marathon
+            <span class="status color-gray">PAUSED</span>
         </div>
         <div class="bucket-item" style="animation-delay: 0.4s">
             Go skydiving
-            <span class="status">NOT DONE</span>
+            <span class="status color-black">NOT DONE</span>
         </div>
     </div>
 </body>
