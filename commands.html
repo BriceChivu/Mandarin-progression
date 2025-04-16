@@ -33,6 +33,14 @@
         .exclamation {
             font-size: 25px;
             font-weight: bold;
+            background: linear-gradient(180deg, red, orange, yellow, green, cyan, blue, violet);
+            background-size: 100% 300%;
+            background-position: 0 0;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            animation: rainbowMove 6s linear infinite;
         }
         @keyframes fadeSlideIn {
             from {
@@ -42,6 +50,14 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+        @keyframes rainbowMove {
+            0% {
+                background-position: 0 0%;
+            }
+            100% {
+                background-position: 0 100%;
             }
         }
     </style>
