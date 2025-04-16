@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+            background: grey;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-areas:
+                "yesterday bucket"
+                "runs bucket"
+                "cumsum cumsum";
+            grid-template-columns: 330px 530px;
+            grid-template-rows: 270px 185px 263px;
+            gap: 20px;
+            justify-content: center;
+            align-items: start;
+            height: 758px;
+            width: 880px;
+        }
+
+        /* Common styles */
+        h1 {
+            font-size: 1.5em;
+            margin: 0 0 8px 0;
+            font-weight: bold;
+            padding-left: 16px;
+            color: #000000;
+        }
+
+        /* Container styling */
+        .container, .runs-container, .list-container, .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 40px;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        /* Section specific heights */
+        .container, .list-container {
+            height: 270px;
+        }
+
+        .runs-container {
+            height: 185px;
+        }
+
+        .chart-container {
+            height: 263px;
+            width: 880px;
+        }
+
+        /* Grid area assignments */
+        .yesterday-section { grid-area: yesterday; }
+        .bucket-section { grid-area: bucket; }
+        .runs-section { grid-area: runs; }
+        .cumsum-section { grid-area: cumsum; width: 880px; }
+
+        /* Keep all existing animations and specific styles from original files */
+        /* @keyframes fadeSlideIn { ... } */
+        /* @keyframes drawLine { ... } */
+
+        /* Activity styles */
+        .activity-bar {
+            font-size: 1.5em;
+            padding: 2px 16px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            justify-content: space-between;
+            color: white;
+            gap: 10px;
+            opacity: 1;
+            transform: none;
+        }
+
+        .hours {
+            font-weight: bold;
+            color: black;
+            padding: 0 4px;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            font-size: 1.35em;
+            margin: 10px;
+        }
+
+        /* Bucket list styles */
+        .bucket-item {
+            font-size: 1.5em;
+            padding: 2px 16px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            justify-content: space-between;
+            color: white;
+            gap: 10px;
+            opacity: 1;
+            transform: none;
+        }
+
+        .status {
+            font-weight: bold;
+            padding: 0 4px;
+        }
+
+        .color-yellow { color: #f6c637; }
+        .color-black { color: black; }
+        .color-gray { color: #d0d0d0; }
+
+        /* Run styles */
+        .run-entry {
+            font-size: 1.5em;
+            padding: 2px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            opacity: 1;
+            transform: none;
+        }
+
+        .distance {
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Chart styles */
+        .progress-line {
+            fill: none;
+            stroke: black;
+            stroke-width: 5;
+            stroke-dasharray: none;
+            stroke-dashoffset: 0;
+        }
+
+        .target-line {
+            stroke: white;
+            stroke-width: 2;
+            stroke-dasharray: 4;
+        }
+
+        .line-label, .month-label {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4em;
+            fill: white;
+        }
+
+        .month-label { text-anchor: start; }
+
+        .chart-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5em;
+            fill: rgb(0, 0, 0);
+            text-anchor: start;
+            font-weight: bold;
+        }
+
+        .container {
+            display: block;  /* Remove display:none */
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="yesterday-section">
+            <div class="container">
+                <h1>Yesterday's activities</h1>
+                <div id="activities"></div>
+                <div id="error" class="error-message"></div>
+            </div>
+        </div>
+
+        <div class="bucket-section">
+            <div class="list-container">
+                <h1>Life Bucket List</h1>
+                <div class="bucket-item in-progress">
+                    Speak fluent Mandarin
+                    <span class="status color-yellow">WIP</span>
+                </div>
+                <div class="bucket-item in-progress">
+                    Play the harmonica
+                    <span class="status color-yellow">WIP</span>
+                </div>
+                <div class="bucket-item in-progress">
+                    Learn to DJ
+                    <span class="status color-yellow">WIP</span>
+                </div>
+                <div class="bucket-item in-progress">
+                    Run a marathon
+                    <span class="status color-gray">PAUSED</span>
+                </div>
+                <div class="bucket-item">
+                    Go skydiving
+                    <span class="status color-black">NOT DONE</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="runs-section">
+            <div class="runs-container">
+                <h1>Latest runs</h1>
+                <div id="runsContainer" class="runs-list"></div>
+            </div>
+        </div>
+
+        <div class="cumsum-section">
+            <div class="chart-container">
+                <svg id="yearChart" width="860" height="223">
+                    <text id="chartTitle" class="chart-title"></text>
+                    <path id="progressLine" class="progress-line"></path>
+                    <line id="targetLine" class="target-line"></line>
+                    <text id="goalText" class="line-label">goal</text>
+                    <text id="targetValue" class="line-label">1000 h</text>
+                    <text id="currentValue" class="line-label"></text>
+                    <g id="monthLabels"></g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Include all JavaScript from original files
+        // ...existing code from yesterday_3420.html script...
+        
+        async function loadData() {
+            const container = document.querySelector('.container');
+            const errorDiv = document.getElementById('error');
+            try {
+                const response = await fetch('yesterday.json');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const jsonData = await response.json();
+                
+                const yesterday = getYesterdayDate();
+                const yesterdayData = jsonData.find(entry => entry.date === yesterday);
+                
+                if (!yesterdayData) throw new Error(`No data for ${yesterday}`);
+                
+                const activities = Object.entries(yesterdayData.activities)
+                    .map(([activity, timeStr]) => {
+                        if (!timeStr || timeStr.trim() === '') return { activity, hours: 0 };
+                        const [h, m] = timeStr.split('h');
+                        return {
+                            activity,
+                            hours: parseFloat(h || '0') + (m ? parseFloat(m) / 60 : 0)
+                        };
+                    })
+                    .filter(item => item.hours > 0);
+
+                if (activities.length === 0) throw new Error('No activities with hours found');
+
+                const activitiesDiv = document.getElementById('activities');
+                activitiesDiv.innerHTML = '';
+
+                activities.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'activity-bar';
+                    div.innerHTML = `
+                        ${item.activity}
+                        <span class="hours">${formatTime(item.hours)}</span>
+                    `;
+                    activitiesDiv.appendChild(div);
+                });
+                
+                container.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                container.style.display = 'none';
+                errorDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // ...existing code from runs_3420.html script...
+        
+        // ...existing code from cum_sum_3420.html script...
+        
+        // Yesterday's activities functions
+        function formatTime(hours) {
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            if (h === 0) return `${m} min`;
+            return m === 0 ? `${h} h` : `${h} h ${m}`;
+        }
+
+        function getYesterdayDate() {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            return date.toISOString().split('T')[0];
+        }
+
+        // Running data functions
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            return `${day} ${month}`;
+        }
+
+        async function fetchRunningData() {
+            try {
+                const response = await fetch('runs.csv');
+                const csvText = await response.text();
+                const [header, ...dataRows] = csvText.trim().split('\n');
+                
+                const container = document.getElementById('runsContainer');
+                
+                dataRows
+                    .map(row => {
+                        const [date, startTime, time, distance] = row.split(',');
+                        return {
+                            date: formatDate(date),
+                            startTime,
+                            time,
+                            distance: distance ? parseFloat(distance) : null
+                        };
+                    })
+                    .filter(run => run.date && run.startTime)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 3)
+                    .forEach((run, index) => {
+                        const entry = document.createElement('div');
+                        entry.className = 'run-entry';
+                        const distanceText = run.distance 
+                            ? `${run.distance % 1 === 0 ? run.distance : run.distance.toFixed(1)}km` 
+                            : '?km';
+                        const timeText = run.time || '??:??';
+                        entry.innerHTML = `
+                            <span>${run.date}</span>
+                            <span><span class="distance">${distanceText}</span> ${timeText}</span>
+                        `;
+                        container.appendChild(entry);
+                    });
+            } catch (error) {
+                console.error('Error fetching running data:', error);
+            }
+        }
+
+        // Cumulative sum chart functions
+        const CHART_CONFIG = {
+            left: 18,
+            right: 32,
+            top: 55,      // <-- was 20, now 45 to leave space for the title
+            bottom: 20,
+            width: 880,
+            height: 200
+        };
+
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        function init() {
+            loadChartData();
+            window.addEventListener('resize', loadChartData);
+        }
+
+        async function loadChartData() {
+            try {
+                const response = await fetch('daily_summary.csv');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const rows = (await response.text()).trim().split('\n').slice(1);
+                drawChart(processData(rows));
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function processData(rows) {
+            const weekMap = new Map();
+            for (let i = 0; i < 53; i++) {
+                weekMap.set(i, 0);
+            }
+
+            rows.forEach(row => {
+                const [date, hours] = row.split(',');
+                if (!date || !hours) return;
+                
+                const parsedDate = new Date(date);
+                if (isNaN(parsedDate.getTime())) return;
+                
+                if (parsedDate.getFullYear() === 2024 && parsedDate.getMonth() === 11 && parsedDate.getDate() >= 30) {
+                    const weekKey = 0;
+                    weekMap.set(weekKey, weekMap.get(weekKey) + parseFloat(hours));
+                    return;
+                }
+                
+                if (parsedDate.getFullYear() !== 2025) return;
+                
+                const parsedHours = parseFloat(hours);
+                if (isNaN(parsedHours)) return;
+                
+                const weekKey = getWeekNumber(parsedDate);
+                if (weekKey >= 0 && weekKey < 53) {
+                    weekMap.set(weekKey, weekMap.get(weekKey) + parsedHours);
+                }
+            });
+
+            let sum = 0;
+            return Array.from({ length: 52 }, (_, i) => {
+                sum += weekMap.get(i) || 0;
+                return sum;
+            });
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            const firstWeekStart = new Date(2024, 11, 30);
+            const diff = d.getTime() - firstWeekStart.getTime();
+            return Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
+        }
+
+        function drawChart(data) {
+            const currentWeek = getWeekNumber(new Date());
+            const currentData = data.slice(0, Math.min(currentWeek + 1, data.length));
+            
+            drawTitle();
+            drawProgressLine(currentData);
+            drawTargetLine();
+            drawLabels(currentData);
+            drawMonthLabels();
+        }
+
+        function drawTitle() {
+            const title = document.getElementById('chartTitle');
+            title.setAttribute('x', CHART_CONFIG.left);
+            title.setAttribute('y', 25);
+            title.textContent = '2025 Mandarin live streaming progress';
+        }
+
+        function drawProgressLine(data) {
+            const points = data.map((value, index) => {
+                const x = CHART_CONFIG.left + (index * ((CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 51));
+                const y = CHART_CONFIG.height - CHART_CONFIG.bottom - 
+                         (value * (CHART_CONFIG.height - CHART_CONFIG.top - CHART_CONFIG.bottom) / 1000);
+                return `${x},${y}`;
+            });
+            
+            document.getElementById('progressLine')
+                .setAttribute('d', `M ${points.join(' L ')}`);
+        }
+
+        function drawTargetLine() {
+            const targetY = CHART_CONFIG.top;
+            const line = document.getElementById('targetLine');
+            line.setAttribute('x1', CHART_CONFIG.left + 53);
+            line.setAttribute('x2', CHART_CONFIG.width - CHART_CONFIG.right - 115);
+            line.setAttribute('y1', targetY);
+            line.setAttribute('y2', targetY);
+
+            const labels = {
+                goal: document.getElementById('goalText'),
+                value: document.getElementById('targetValue')
+            };
+
+            labels.goal.setAttribute('x', CHART_CONFIG.left);
+            labels.goal.setAttribute('y', targetY + 6);
+            labels.value.setAttribute('x', CHART_CONFIG.width - CHART_CONFIG.right - 109);
+            labels.value.setAttribute('y', targetY + 6);
+        }
+
+        function drawLabels(data) {
+            const currentTotal = data[data.length - 1] || 0;
+            if (currentTotal <= 0) return;
+
+            const x = CHART_CONFIG.left + ((data.length - 1) * ((CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 51));
+            const y = CHART_CONFIG.height - CHART_CONFIG.bottom - 
+                     (currentTotal * (CHART_CONFIG.height - CHART_CONFIG.top - CHART_CONFIG.bottom) / 1000);
+
+            const label = document.getElementById('currentValue');
+            label.setAttribute('x', x + 10);
+            label.setAttribute('y', y + 6);
+            label.textContent = `${Math.round(currentTotal)}h`;
+        }
+
+        function drawMonthLabels() {
+            const container = document.getElementById('monthLabels');
+            container.innerHTML = '';
+            
+            MONTHS.forEach((month, i) => {
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute('class', 'month-label');
+                text.setAttribute('x', CHART_CONFIG.left + (i * (CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 12));
+                text.setAttribute('y', CHART_CONFIG.height+15);
+                text.textContent = month;
+                container.appendChild(text);
+            });
+        }
+
+        // Initialize all components
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            fetchRunningData();
+            loadChartData();
+            window.addEventListener('resize', loadChartData);
+        });
+    </script>
+</body>
+</html>
