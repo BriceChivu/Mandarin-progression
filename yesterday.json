@@ -1,0 +1,189 @@
+[
+    {
+      "date": "2025-03-29",
+      "activities": {
+        "mandarin": "6h15",
+        "run": "1h36"
+      }
+    },
+    {
+      "date": "2025-03-30",
+      "activities": {
+        "mandarin": "5h",
+        "harmonica": "1h",
+        "run": "1h21"
+      }
+    },
+    {
+      "date": "2025-03-31",
+      "activities": {
+        "mandarin": "4h15",
+        "harmonica": "1h"
+      }
+    },
+    {
+      "date": "2025-04-01",
+      "activities": {
+        "mandarin": "4h45",
+        "harmonica": "0h40",
+        "run": "1h02"
+      }
+    },
+    {
+      "date": "2025-04-02",
+      "activities": {
+        "mandarin": "8h42",
+        "harmonica": "0h20",
+        "reading": "0h15"
+      }
+    },
+    {
+      "date": "2025-04-03",
+      "activities": {
+        "mandarin": "5h48",
+        "harmonica": "0h10",
+        "run": "1h54",
+        "reading":"0h15"
+      }
+    },
+    {
+      "date": "2025-04-04",
+      "activities": {
+        "mandarin": "2h"
+      }
+    },
+    {
+      "date": "2025-04-05",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-06",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-07",
+      "activities": {
+        "mandarin": "8h23",
+        "harmonica": "1h",
+        "reading": "0h20"
+      }
+    },
+    {
+      "date": "2025-04-08",
+      "activities": {
+        "mandarin": "5h",
+        "harmonica": "0h20",
+        "reading": "0h20",
+        "biking": "1h"
+      }
+    },
+    {
+      "date": "2025-04-09",
+      "activities": {
+        "mandarin": "4h15",
+        "harmonica": "0h15",
+        "reading": "0h25",
+        "stretching": "0h30"
+      }
+    },
+    {
+      "date": "2025-04-10",
+      "activities": {
+        "mandarin": "0h30",
+        "reading": "0h25",
+        "stretching": "0h30",
+        "movie": "2h"
+      }
+    },
+    {
+      "date": "2025-04-11",
+      "activities": {
+        "mandarin":"7h",
+        "harmonica": "0h30",
+        "reading": "0h30",
+        "stretching": "0h30"
+      }
+    },
+    {
+      "date": "2025-04-12",
+      "activities": {
+        "mandarin": "5h",
+        "harmonica": "0h30",
+        "stretching": "0h45"
+      }
+    },
+    {
+      "date": "2025-04-13",
+      "activities": {
+        "mandarin": "5h",
+        "harmonica": "0h30",
+        "stretching": "0h45",
+        "DJ": "1h12"
+      }
+    },
+    {
+      "date": "2025-04-14",
+      "activities": {
+        "mandarin":"5h",
+        "harmonica": "0h30",
+        "stretching": "0h45",
+        "reading": "0h30",
+        "DJ": "0h34"
+      }
+    },
+    {
+      "date": "2025-04-15",
+      "activities": {
+        "mandarin":"3h",
+        "stretching":"0h30",
+        "harmonica":"0h30",
+        "reading":"0h30"
+      }
+    },
+    {
+      "date": "2025-04-16",
+      "activities": {
+        "mandarin": "4h30",
+        "reading": "0h30",
+        "stretching": "0h30",
+        "DJ": "0h52",
+        "harmonica": "0h15"
+      }
+    },
+    {
+      "date": "2025-04-17",
+      "activities": {
+        "mandarin":"5h",
+        "reading": "0h30",
+        "stretching":"0h40",
+        "harmonica":"0h30",
+        "DJ":"0h30"
+      }
+    },
+    {
+      "date": "2025-04-18",
+      "activities": {
+        "mandarin":"1h"
+      }
+    },
+    {
+      "date": "2025-04-19",
+      "activities": {
+        "mandarin":"2h15",
+        "harmonica":"0h35",
+        "DJ":"0h35"
+      }
+    },
+    {
+      "date": "2025-04-20",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-21",
+      "activities": {
+      }
+    }
+  ]
