@@ -185,10 +185,30 @@
     {
       "date": "2025-04-21",
       "activities": {
-        "mandarin":"2h30",
+        "mandarin":"3h",
         "stretching":"0h40",
         "harmonica":"0h30",
         "DJ":"2h30"
       }
+    },
+    {
+      "date": "2025-04-22",
+      "activities": {
+        "mandarin":"3h",
+        "stretching":"0h40",
+        "harmonica":"0h30",
+        "DJ":"1h"
+      }
+    },
+    {
+      "date": "2025-04-23",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-24",
+      "activities": {
+      }
     }
+
   ]
