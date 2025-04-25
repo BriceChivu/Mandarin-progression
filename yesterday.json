@@ -203,10 +203,47 @@
     {
       "date": "2025-04-23",
       "activities": {
+        "harmonica":"0h30"
       }
     },
     {
       "date": "2025-04-24",
+      "activities": {
+        "mandarin":"3h",
+        "stretching":"0h25",
+        "harmonica":"0h30",
+        "reading":"0h30"
+      }
+    },
+    {
+      "date": "2025-04-25",
+      "activities": {
+        "mandarin":"3h"
+        
+      }
+    },
+    {
+      "date": "2025-04-26",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-27",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-28",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-29",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-04-30",
       "activities": {
       }
     }
