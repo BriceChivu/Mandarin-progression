@@ -258,13 +258,17 @@
       "date": "2025-05-02",
       "activities": {
         "mandarin": "2h",
-        "stretching": "0h30"
+        "stretching": "0h30",
+        "harmonica": "0h10",
+        "DJ": "1h30"
         
       }
     },
     {
       "date": "2025-05-03",
       "activities": {
+        "DJ": "3h",
+        "mandarin": "2h30"
       }
     }
 
