@@ -268,7 +268,25 @@
       "date": "2025-05-03",
       "activities": {
         "DJ": "3h",
-        "mandarin": "2h30"
+        "mandarin": "2h30",
+        "stretching": "0h30"
+      }
+    },
+    {
+      "date": "2025-05-04",
+      "activities": {
+        "stretching": "0h30"
+
+      }
+    },
+    {
+      "date": "2025-05-05",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-06",
+      "activities": {
       }
     }
 
