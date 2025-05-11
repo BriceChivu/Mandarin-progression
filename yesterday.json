@@ -275,7 +275,9 @@
     {
       "date": "2025-05-04",
       "activities": {
-        "stretching": "0h30"
+        "stretching": "0h30",
+        "mandarin": "2h",
+        "harmonica": "0h45"
 
       }
     },
@@ -288,6 +290,33 @@
       "date": "2025-05-06",
       "activities": {
       }
+    },
+    {
+      "date": "2025-05-07",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-08",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-09",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-10",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-11",
+      "activities": {
+        "mandarin": "2h"
+      }
     }
+
 
   ]
