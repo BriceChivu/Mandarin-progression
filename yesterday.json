@@ -338,6 +338,7 @@
     {
       "date": "2025-05-15",
       "activities": {
+        "mandarin": "2h"
       }
     },
     {
@@ -348,6 +349,73 @@
     },
     {
       "date": "2025-05-17",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-18",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-19",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-20",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-21",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-22",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-23",
+      "activities": {
+        "mandarin": "2h"
+      }
+    },
+    {
+      "date": "2025-05-24",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-25",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-26",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-27",
+      "activities": {
+        "mandarin": "1h50"
+      }
+    },
+    {
+      "date": "2025-05-28",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-29",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-30",
       "activities": {
       }
     }
