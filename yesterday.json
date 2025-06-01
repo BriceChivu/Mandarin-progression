@@ -414,10 +414,63 @@
     {
       "date": "2025-05-29",
       "activities": {
+        "mandarin": "1h20",
+        "reading":"0h30",
+        "harmonica": "0h30"
       }
     },
     {
       "date": "2025-05-30",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-05-31",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-01",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-02",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-03",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-04",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-05",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-06",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-07",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-08",
+      "activities": {
+      }
+    },
+    {
+      "date": "2025-06-09",
       "activities": {
       }
     }
