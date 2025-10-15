@@ -49,7 +49,7 @@
 </head>
 <body>
     <div class="chart-container">
-        <svg id="yearChart" width="860" height="223">
+        <svg id="yearChart" width="880" height="223">
             <text id="chartTitle" class="chart-title"></text>
             <path id="progressLine" class="progress-line"></path>
             <line id="targetLine" class="target-line"></line>
@@ -62,10 +62,10 @@
     <script>
         const CHART_CONFIG = {
             left: 18,
-            right: 32,
+            right: 42,  // Increased right margin
             top: 55,
             bottom: 20,
-            width: 880,
+            width: 780,  // Matches container width
             height: 200
         };
         const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
@@ -150,7 +150,7 @@
             const targetY = CHART_CONFIG.top;
             const line = document.getElementById('targetLine');
             line.setAttribute('x1', CHART_CONFIG.left + 53);
-            line.setAttribute('x2', CHART_CONFIG.width - CHART_CONFIG.right - 115);
+            line.setAttribute('x2', CHART_CONFIG.width - CHART_CONFIG.right);  // Removed the -20
             line.setAttribute('y1', targetY);
             line.setAttribute('y2', targetY);
 
@@ -160,7 +160,7 @@
             };
             labels.goal.setAttribute('x', CHART_CONFIG.left);
             labels.goal.setAttribute('y', targetY + 6);
-            labels.value.setAttribute('x', CHART_CONFIG.width - CHART_CONFIG.right - 109);
+            labels.value.setAttribute('x', CHART_CONFIG.width - CHART_CONFIG.right);  // Removed the -10
             labels.value.setAttribute('y', targetY + 6);
         }
 
@@ -191,7 +191,5 @@
 
         document.addEventListener('DOMContentLoaded', loadChartData);
     </script>
-</body>
-</html>
 </body>
 </html>
