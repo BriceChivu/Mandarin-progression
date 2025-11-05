@@ -150,18 +150,18 @@ plt.figure(figsize=(35, 6))  # Changed width from 20 to 25
 
 # Define colors for each month
 month_colors = {
-    1: '#1f77b4',  # January - blue
-    2: '#2ca02c',  # February - green
-    3: '#ff7f0e',  # March - orange
-    4: '#d62728',  # April - red
-    5: '#9467bd',  # May - purple
-    6: '#8c564b',  # June - brown
-    7: '#e377c2',  # July - pink
-    8: '#7f7f7f',  # August - gray
-    9: '#bcbd22',  # September - yellow-green
-    10: '#17becf', # October - cyan
-    11: '#aa40fc', # November - bright purple
-    12: '#b5bd61'  # December - olive
+    1: '#1f77b4',  # January - muted blue
+    2: '#ff7f0e',  # February - vivid orange
+    3: '#2ca02c',  # March - forest green (Note: changed from '#9467bd' to continue the tab10 cycle)
+    4: '#d62728',  # April - bright red
+    5: '#9467bd',  # May - muted purple
+    6: '#8c564b',  # June - muted brown
+    7: '#e377c2',  # July - light pink/magenta
+    8: '#7f7f7f',  # August - medium grey
+    9: '#bcbd22',  # September - mustard yellow/olive
+    10: '#17becf', # October - deep cyan/teal
+    11: 'darkgreen', # November - dark green (Corrected to standard CSS/SVG name)
+    12: '#b5bd61'  # December - olive/moss green
 }
 
 # Format dates for x-axis with separate month and year
