@@ -45,6 +45,13 @@
             text-anchor: start;
             /* font-weight: bold; */
         }
+
+        /* new: current point dot */
+        .current-dot {
+            fill: #e74c3c;    /* red */
+            stroke: white;
+            stroke-width: 1;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +59,8 @@
         <svg id="yearChart" width="880" height="223">
             <text id="chartTitle" class="chart-title"></text>
             <path id="progressLine" class="progress-line"></path>
+            <!-- small red dot for current point (hidden until positioned) -->
+            <circle id="currentDot" class="current-dot" r="4" visibility="hidden"></circle>
             <line id="targetLine" class="target-line"></line>
             <text id="goalText" class="line-label">goal</text>
             <text id="targetValue" class="line-label">1000 h</text>
@@ -166,14 +175,36 @@
 
         function drawLabels(data) {
             const currentTotal = data[data.length - 1] || 0;
-            if (currentTotal <= 0) return;
-            const x = CHART_CONFIG.left + ((data.length - 1) * ((CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 51));
-            const y = CHART_CONFIG.height - CHART_CONFIG.bottom - 
-                     (currentTotal * (CHART_CONFIG.height - CHART_CONFIG.top - CHART_CONFIG.bottom) / 1000);
             const label = document.getElementById('currentValue');
-            label.setAttribute('x', x + 10);
-            label.setAttribute('y', y + 6);
+            const dot = document.getElementById('currentDot');
+
+            if (currentTotal <= 0) {
+                // hide label and dot when no data
+                label.textContent = '';
+                label.setAttribute('visibility', 'hidden');
+                dot.setAttribute('visibility', 'hidden');
+                return;
+            }
+
+            const x = CHART_CONFIG.left + ((data.length - 1) * ((CHART_CONFIG.width - CHART_CONFIG.left - CHART_CONFIG.right) / 51));
+            const y = CHART_CONFIG.height - CHART_CONFIG.bottom -
+                     (currentTotal * (CHART_CONFIG.height - CHART_CONFIG.top - CHART_CONFIG.bottom) / 1000);
+
+            // Center the label horizontally on the point and place it below the point.
+            const offsetBelow = 26; // pixels below the point
+            const maxY = CHART_CONFIG.height - 2; // a little padding from bottom
+            const labelY = Math.min(y + offsetBelow, maxY);
+
+            label.setAttribute('text-anchor', 'middle');  // center text at x
+            label.setAttribute('x', x);
+            label.setAttribute('y', labelY);
             label.textContent = `${Math.round(currentTotal)}h`;
+            label.setAttribute('visibility', 'visible');
+
+            // Position and show the red dot exactly at the point (on top of the line)
+            dot.setAttribute('cx', x);
+            dot.setAttribute('cy', y);
+            dot.setAttribute('visibility', 'visible');
         }
 
         function drawMonthLabels() {
