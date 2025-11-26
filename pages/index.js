@@ -90,11 +90,14 @@ function BarChart({ data, maxValue, width, height = 24, color = "#1a73e8" }) {
 
 export async function getStaticProps() {
   let sessions;
+  let classroomItems = [];
 
   try {
     const fs = require('fs');
     const path = require('path');
     const Papa = require('papaparse');
+
+    // existing sessions CSV parsing
     const sessionsPath = path.join(process.cwd(), 'public', 'streaming_sessions.csv');
     const sessionsCsv = fs.readFileSync(sessionsPath, 'utf8');
     const parsed = Papa.parse(sessionsCsv, { header: true, skipEmptyLines: true });
@@ -111,9 +114,60 @@ export async function getStaticProps() {
       return normalized;
     });
 
+    // NEW: parse classroom CSV
+    try {
+      const classroomPath = path.join(process.cwd(), 'public', 'classroom_collab_with_ben.csv');
+      const classroomCsv = fs.readFileSync(classroomPath, 'utf8');
+      const parsedClass = Papa.parse(classroomCsv, { header: true, skipEmptyLines: true });
+
+      classroomItems = parsedClass.data.map(row => {
+        const normalized = {};
+        Object.keys(row).forEach(key => {
+          const cleanKey = key.trim().replace(/\r/g, '');
+          let value = row[key];
+          if (typeof value === 'string') value = value.trim().replace(/\r/g, '');
+          normalized[cleanKey] = value;
+        });
+
+        // date in CSV is DD-MM-YYYY — convert to ISO YYYY-MM-DD for sorting
+        let isoDate = '';
+        if (normalized.date) {
+          const parts = normalized.date.split('-');
+          if (parts.length === 3) {
+            const [day, month, year] = parts;
+            isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          } else {
+            isoDate = normalized.date;
+          }
+        }
+
+        return {
+          date: normalized.date || '',
+          isoDate,
+          url: normalized.url || '',
+          number: Number(normalized.number) || null
+        };
+      });
+
+      // ensure classroomItems are sorted latest-first (server-side)
+      classroomItems.sort((a, b) => {
+        const da = new Date(a.isoDate || a.date);
+        const db = new Date(b.isoDate || b.date);
+        const diff = db - da; // positive -> b is later
+        if (diff !== 0) return diff;
+        // tie-breaker: use numeric class number (higher number => later)
+        return (b.number || 0) - (a.number || 0);
+      });
+
+    } catch (errClass) {
+      console.warn('Could not load classroom CSV:', errClass);
+      classroomItems = [];
+    }
+
     return {
       props: {
         sessions,
+        classroomItems
       },
     };
   } catch (error) {
@@ -121,13 +175,14 @@ export async function getStaticProps() {
     return {
       props: {
         sessions: [],
+        classroomItems: [],
         error: 'Failed to load session data'
       }
     };
   }
 }
 
-export default function Home({ sessions }) {
+export default function Home({ sessions, classroomItems }) {
   // Process sessions data by month and date
   const processedByMonth = {};
 
@@ -196,6 +251,12 @@ export default function Home({ sessions }) {
   const [expandedMonth, setExpandedMonth] = useState(null);
   const [expandedDay, setExpandedDay] = useState(null);
 
+  // Add classroom expanded state and toggle
+  const [expandedClassroom, setExpandedClassroom] = useState(null);
+  const toggleClassroom = (id) => {
+    setExpandedClassroom(prev => prev === id ? null : id);
+  };
+
   // Store refs for each day
   const dayRefs = useRef({});
 
@@ -243,31 +304,31 @@ export default function Home({ sessions }) {
       <title>BriceLearnStuff | Mandarin Live Streams</title>
       <meta name="description" content="A brief description of your page for search engines." />
     </Head>
-    <div style={{ padding: '16px', fontFamily: 'sans-serif', maxWidth: '100%', margin: '0 auto' }}>
+    <div style={{ padding: '12px', fontFamily: 'sans-serif', maxWidth: '100%', margin: '0 auto' }}>
 
       <div style={{ 
         textAlign: 'center', 
-        marginBottom: '32px',
-        padding: '24px 0',
+        marginBottom: '18px',              // was 32px -> tighter
+        padding: '14px 0',                // was 24px 0 -> tighter
         background: 'linear-gradient(135deg, #f5fbff 0%, #e0f0ff 100%)',
         borderRadius: '12px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        position: 'relative', // <-- add for positioning favicon
+        position: 'relative',
         maxWidth: '100%',
-        overflow: 'hidden', // <-- ensure icon doesn't overflow
-        minHeight: '120px', // <-- ensure enough height for icon
+        overflow: 'hidden',
+        minHeight: '80px',                // was 120px -> smaller
       }}>
         {/* Favicon behind the title */}
         <div style={{
           position: 'absolute',
           left: '50%',
-          top: '50%', // center vertically
-          transform: 'translate(-50%, -50%)', // center both axes
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
           zIndex: 0,
           opacity: 0.18,
           filter: 'blur(2px)',
-          width: '320px',
-          height: '320px',
+          width: '200px',                 // was 320px -> smaller
+          height: '200px',                // was 320px -> smaller
           pointerEvents: 'none',
           maxWidth: 'none',
           maxHeight: 'none',
@@ -285,117 +346,111 @@ export default function Home({ sessions }) {
           />
         </div>
         <h1 style={{ 
-          fontSize: '2.5rem',
+          fontSize: '1.6rem',              // was 2.5rem -> much smaller
           fontWeight: '700',
           color: '#1a73e8',
-          marginBottom: '16px',
+          marginBottom: '8px',             // was 16px -> smaller gap
           textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
           letterSpacing: '0.5px',
           position: 'relative',
-          zIndex: 1 // <-- ensure text is above favicon
+          zIndex: 1
         }}>
           Mandarin Live Streams
         </h1>
         
         <div style={{
           display: 'flex',
-          gap: '20px',
+          gap: '12px',                     // slightly smaller gap between icons
           justifyContent: 'center',
           alignItems: 'center'
         }}>
           <a href="https://www.youtube.com/@bricelearnstuff" target="_blank" rel="noopener noreferrer" className="social-icon" >
-            <FaYoutube size={28} color="#FF0000" style={{ transition: 'transform 0.2s' }} />
+            <FaYoutube size={20} color="#FF0000" style={{ transition: 'transform 0.2s' }} />  {/* was 28 */}
           </a>
           <a href="https://www.tiktok.com/@bricelearnstuff" target="_blank" rel="noopener noreferrer" className="social-icon" >
-            <FaTiktok size={28} color="#000000" style={{ transition: 'transform 0.2s' }} />
+            <FaTiktok size={20} color="#000000" style={{ transition: 'transform 0.2s' }} />
           </a>
           <a href="https://www.instagram.com/bricelearnstuff" target="_blank" rel="noopener noreferrer" className="social-icon" >
-            <FaInstagram size={28} color="#E1306C" style={{ transition: 'transform 0.2s' }} />
+            <FaInstagram size={20} color="#E1306C" style={{ transition: 'transform 0.2s' }} />
           </a>
           <a href="https://www.twitch.tv/bricelearnstuff" target="_blank" rel="noopener noreferrer" className="social-icon" >
-            <FaTwitch size={28} color="#6441a5" style={{ transition: 'transform 0.2s' }} />
+            <FaTwitch size={20} color="#6441a5" style={{ transition: 'transform 0.2s' }} />
           </a>
         </div>
       </div>
 
-      <h2 style={{ fontSize: '20px', marginTop: '24px', marginBottom: '16px' }}>Statistics</h2>
+      <h2 style={{ fontSize: '18px', marginTop: '18px', marginBottom: '12px' }}>Statistics</h2>
       
       <div style={{ 
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '12px', 
-        marginBottom: '24px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '8px',                      // was 12px -> tighter grid
+        marginBottom: '16px',
       }}>
-        {/* Total Hours Card */}
-                <div style={{ 
+        {/* Total Hours Card (compact) */}
+        <div style={{ 
           backgroundColor: '#f5fbff',
-          padding: '16px',
+          padding: '10px',                // was 16px -> smaller
           borderRadius: '8px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '12px', color: '#555' }}>TOTAL HOURS in 2025</div>
+          <div style={{ fontSize: '11px', color: '#555' }}>TOTAL HOURS in 2025</div>  {/* was 12px */}
           <div style={{ 
             display: 'flex', 
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            gap: '6px'
           }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a73e8' }}>
-              {Math.round(totalHours)}
-            </div>
-            <div style={{ fontSize: '14px', color: '#555' }}>
-              / {goalHours}
-            </div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a73e8' }}>{Math.round(totalHours)}</div> {/* was 24px */}
+            <div style={{ fontSize: '13px', color: '#555' }}>/ {goalHours}</div>
           </div>
         </div>
-        {/* Streams Card */}
+
+        {/* Streams Card (compact) */}
         <div style={{ 
           backgroundColor: '#f5fbff',
-          padding: '16px',
+          padding: '10px',                // was 16px
           borderRadius: '8px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '12px', color: '#555' }}>STREAMS</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a73e8' }}>{totalSessions}</div>
+          <div style={{ fontSize: '11px', color: '#555' }}>STREAMS</div>
+          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a73e8' }}>{totalSessions}</div>
         </div>
 
-        {/* Active Days Card */}
+        {/* Active Days Card (compact) */}
         <div style={{ 
           backgroundColor: '#f5fbff',
-          padding: '16px',
+          padding: '10px',
           borderRadius: '8px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '12px', color: '#555' }}>ACTIVE DAYS</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a73e8' }}>{activeDays}</div>
+          <div style={{ fontSize: '11px', color: '#555' }}>ACTIVE DAYS</div>
+          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a73e8' }}>{activeDays}</div>
         </div>
 
-        {/* Avg Hours/Day Card */}
+        {/* Avg Hours/Day Card (compact) */}
         <div style={{ 
           backgroundColor: '#f5fbff',
-          padding: '16px',
+          padding: '10px',
           borderRadius: '8px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '12px', color: '#555' }}>AVG HOURS/DAY</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a73e8' }}>{formatHoursToHM(averageHoursPerDay)}</div>
-          <div style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
-          </div>
+          <div style={{ fontSize: '11px', color: '#555' }}>AVG HOURS/DAY</div>
+          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a73e8' }}>{formatHoursToHM(averageHoursPerDay)}</div>
         </div>
       </div>
+
+      <h2 style={{ fontSize: '18px', marginTop: '18px', marginBottom: '12px' }}>Study Activity</h2>
       
-      
-      <h2 style={{ fontSize: '20px', marginTop: '24px', marginBottom: '16px' }}>Study Activity</h2>
-      
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '16px' }}>
         {monthsData.map((monthData, monthIndex) => {
           const maxHours = getMaxHoursInMonth(monthData.days);
           const isMonthExpanded = expandedMonth === monthData.month;
-          const isLatestMonth = monthIndex === 0; // latest month is first after sorting
+          const isLatestMonth = monthIndex === 0;
 
           // Fill missing days with 0 hours
           const [year, month] = monthData.month.split('-');
@@ -413,11 +468,11 @@ export default function Home({ sessions }) {
           const barChartData = allDays.map(date => dayMap[date] || 0);
 
           return (
-            <div key={monthIndex} style={{ marginBottom: '16px' }}>
+            <div key={monthIndex} style={{ marginBottom: '8px' }}> {/* was 16px -> tighter between months */}
               <div 
                 onClick={() => toggleMonth(monthData.month)}
                 style={{ 
-                  padding: '12px', 
+                  padding: '8px',                // was 12px -> smaller clickable area
                   backgroundColor: isMonthExpanded ? '#1a73e8' : '#f0f0f0', 
                   color: isMonthExpanded ? 'white' : 'black',
                   borderRadius: '8px',
@@ -436,30 +491,18 @@ export default function Home({ sessions }) {
                   {isLatestMonth && !isMonthExpanded && (
                     <span style={{
                       marginLeft: '8px',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       color: '#1a73e8',
                       fontWeight: 'bold',
-                      background: 'none',
-                      borderRadius: '6px',
-                      padding: '2px 8px',
+                      padding: '2px 6px',
                       animation: 'blink 1s linear infinite'
                     }}>
                       click me
                     </span>
                   )}
-                  {/* Blinking animation keyframes */}
-                  <style>
-                    {`
-                      @keyframes blink {
-                        0% { opacity: 1; }
-                        50% { opacity: 0; }
-                        100% { opacity: 1; }
-                      }
-                    `}
-                  </style>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{Math.round(monthData.totalHours)} hours</span>
+                  <span style={{ fontSize: '13px' }}>{Math.round(monthData.totalHours)} hours</span>
                   <span style={{ 
                     transform: isMonthExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.3s'
@@ -468,16 +511,16 @@ export default function Home({ sessions }) {
               </div>
               
               {isMonthExpanded && (
-                <div style={{ marginTop: '8px', padding: '8px' }}>
+                <div style={{ marginTop: '6px', padding: '6px' }}> {/* was 8px padding/top */}
                   {monthData.days.map((day, dayIndex) => {
                     const isDayExpanded = expandedDay === day.date;
                     const barWidth = `${(day.totalHours / maxHours) * 100}%`;
-                    const isLatestDay = dayIndex === 0; // first day is latest after sorting
+                    const isLatestDay = dayIndex === 0;
 
                     return (
                       <div
                         key={dayIndex}
-                        style={{ marginBottom: '8px' }}
+                        style={{ marginBottom: '6px' }}   // was 8px
                         ref={el => dayRefs.current[day.date] = el}
                       >
                         <div 
@@ -485,73 +528,58 @@ export default function Home({ sessions }) {
                           style={{ 
                             display: 'flex', 
                             alignItems: 'center',
-                            padding: '8px',
+                            padding: '6px',           // was 8px
                             cursor: 'pointer',
                             borderBottom: '1px solid #eee',
                           }}
                         >
-                          {/* Show full date string for clarity */}
                           <div style={{ width: '100px', textAlign: 'center', fontWeight: 'bold', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {day.dayLabel}
                             {isLatestDay && !isDayExpanded && (
                               <span style={{
                                 marginLeft: '6px',
-                                fontSize: '12px',
+                                fontSize: '11px',
                                 color: '#1a73e8',
                                 fontWeight: 'bold',
-                                background: 'none',
-                                borderRadius: '6px',
-                                padding: '2px 8px',
+                                padding: '2px 6px',
                                 animation: 'blink 1s linear infinite'
                               }}>
                                 click me
                               </span>
                             )}
                           </div>
-                          {/* Blinking animation keyframes (only once per render, safe to duplicate) */}
-                          {isLatestDay && (
-                            <style>
-                              {`
-                                @keyframes blink {
-                                  0% { opacity: 1; }
-                                  50% { opacity: 0; }
-                                  100% { opacity: 1; }
-                                }
-                              `}
-                            </style>
-                          )}
+
                           <div style={{ flex: 1, marginLeft: '8px', marginRight: '8px' }}>
-                          <div style={{ flex: 1, marginLeft: '8px', marginRight: '8px' }}>
-                          <div style={{
-                            position: 'relative',
-                            width: '100%',
-                            height: '20px',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            borderRadius: '12px',
-                            backdropFilter: 'blur(6px)',
-                            WebkitBackdropFilter: 'blur(6px)',
-                            boxShadow: '0 4px 8px rgba(0,0,0,0.05) inset',
-                            overflow: 'hidden',
-                          }}>
                             <div style={{
-                              height: '100%',
-                              width: barWidth,
-                              background: 'linear-gradient(90deg, #4fc3f7, #1e88e5)',
+                              position: 'relative',
+                              width: '100%',
+                              height: '16px',     // was 20px -> smaller bar
+                              background: 'rgba(255, 255, 255, 0.05)',
                               borderRadius: '12px',
-                              boxShadow: '0 0 8px #1e88e5cc',
-                              transition: 'width 0.6s ease',
-                              display: 'flex',
-                              alignItems: 'center',
-                              paddingLeft: '12px',
-                              color: 'white',
-                              fontWeight: 'bold',
-                              fontSize: '12px',
+                              backdropFilter: 'blur(6px)',
+                              WebkitBackdropFilter: 'blur(6px)',
+                              boxShadow: '0 4px 8px rgba(0,0,0,0.05) inset',
+                              overflow: 'hidden',
                             }}>
-                              {formatHoursToHM(day.totalHours)}
+                              <div style={{
+                                height: '100%',
+                                width: barWidth,
+                                background: 'linear-gradient(90deg, #4fc3f7, #1e88e5)',
+                                borderRadius: '12px',
+                                boxShadow: '0 0 8px #1e88e5cc',
+                                transition: 'width 0.6s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                paddingLeft: '10px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '11px',
+                              }}>
+                                {formatHoursToHM(day.totalHours)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                          </div>
+
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ 
                               fontSize: '10px',
@@ -563,14 +591,14 @@ export default function Home({ sessions }) {
                         
                         {isDayExpanded && (
                           <div style={{ 
-                            padding: '12px', 
+                            padding: '8px',   // was 12px -> smaller expanded area
                             backgroundColor: '#f9f9f9',
                             borderRadius: '8px',
-                            marginTop: '8px'
+                            marginTop: '6px'
                           }}>
                             {day.sessions.map((session, sessionIndex) => (
                               <div key={sessionIndex} style={{ 
-                                padding: '12px',
+                                padding: '8px',  // was 12px
                                 borderBottom: sessionIndex < day.sessions.length - 1 ? '1px solid #eee' : 'none',
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -578,7 +606,7 @@ export default function Home({ sessions }) {
                               }}>
                                 
                                 <YouTubeEmbed url={session.youtubeLink} />
-                                </div>
+                              </div>
                             ))}
                           </div>
                         )}
@@ -592,6 +620,76 @@ export default function Home({ sessions }) {
         })}
       </div>
       
+      {/* New "Classroom" section inserted before "Recent Streams" */}
+      <h2 style={{ fontSize: '20px', marginTop: '24px', marginBottom: '16px' }}>Classroom</h2>
+
+      {/* Classroom (use server-sorted classroomItems; no client-side sort) */}
+      <div>
+        {[...classroomItems] // already sorted server-side (latest first)
+          .map((item, index) => {
+            const id = item.url || `${item.isoDate || item.date}-${index}`;
+            const title = `class #${item.number != null ? item.number : index + 1}`;
+            const isExpanded = expandedClassroom === id;
+            const isLatestClass = index === 0; // latest at the top
+            return (
+              <div 
+                key={id} 
+                style={{ 
+                  padding: '12px',
+                  marginBottom: '8px',
+                  backgroundColor: '#f9f9f9',
+                  borderRadius: '8px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}
+              >
+                <div 
+                  onClick={() => toggleClassroom(id)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                >
+                  <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {title}
+                    {isLatestClass && !isExpanded && (
+                      <span style={{
+                        marginLeft: '8px',
+                        fontSize: '12px',
+                        color: '#1a73e8',
+                        fontWeight: 'bold',
+                        background: 'none',
+                        borderRadius: '6px',
+                        padding: '2px 8px',
+                        animation: 'blink 1s linear infinite'
+                      }}>
+                        click me
+                      </span>
+                    )}
+                    {isLatestClass && (
+                      <style>
+                        {`
+                          @keyframes blink {
+                            0% { opacity: 1; }
+                            50% { opacity: 0; }
+                            100% { opacity: 1; }
+                          }
+                        `}
+                      </style>
+                    )}
+                  </div>
+                  <div style={{ 
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s'
+                  }}>▼</div>
+                </div>
+
+                {isExpanded && (
+                  <div style={{ marginTop: '8px' }}>
+                    <YouTubeEmbed url={item.url} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+      </div>
+
       <h2 style={{ fontSize: '20px', marginTop: '24px', marginBottom: '16px' }}>Recent Streams</h2>
       
       <div>

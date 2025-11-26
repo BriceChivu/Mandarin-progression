@@ -82,16 +82,22 @@
 
         async function loadChartData() {
             try {
-                const response = await fetch('public/daily_summary.csv');
-                if (!response.ok) throw new Error('Failed to fetch data');
-                const rows = (await response.text()).trim().split('\n').slice(1);
-                drawChart(processData(rows));
+                // fetch both CSVs in parallel
+                const [respMain, respClass] = await Promise.all([
+                    fetch('public/daily_summary.csv'),
+                    fetch('public/classroom_collab_with_ben.csv')
+                ]);
+                if (!respMain.ok) throw new Error('Failed to fetch daily_summary.csv');
+                if (!respClass.ok) throw new Error('Failed to fetch classroom_collab_with_ben.csv');
+                const rows = (await respMain.text()).trim().split('\n').slice(1);
+                const classRows = (await respClass.text()).trim().split('\n').slice(1);
+                drawChart(processData(rows, classRows));
             } catch (error) {
                 console.error('Error loading data:', error);
             }
         }
 
-        function processData(rows) {
+        function processData(rows, classRows) {
             const weekMap = new Map();
             for (let i = 0; i < 53; i++) weekMap.set(i, 0);
             rows.forEach(row => {
@@ -112,6 +118,32 @@
                     weekMap.set(weekKey, weekMap.get(weekKey) + parsedHours);
                 }
             });
+
+            // Process classroom_collab_with_ben.csv rows (expected format: DD-MM-YYYY, url, number)
+            if (Array.isArray(classRows)) {
+                classRows.forEach(row => {
+                    if (!row) return;
+                    const cols = row.split(',');
+                    const dateStr = (cols[0] || '').trim();
+                    if (!dateStr) return;
+                    // parse DD-MM-YYYY
+                    const parts = dateStr.split('-');
+                    if (parts.length !== 3) return;
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1; // zero-based
+                    const year = parseInt(parts[2], 10);
+                    if (isNaN(day) || isNaN(month) || isNaN(year)) return;
+                    const classDate = new Date(year, month, day);
+                    if (isNaN(classDate.getTime())) return;
+                    // Only add classes for 2025 (as requested)
+                    if (classDate.getFullYear() !== 2025) return;
+                    const weekKey = getWeekNumber(classDate);
+                    if (weekKey >= 0 && weekKey < 53) {
+                        // add 1 hour for each class row
+                        weekMap.set(weekKey, (weekMap.get(weekKey) || 0) + 1);
+                    }
+                });
+            }
             let sum = 0;
             return Array.from({ length: 52 }, (_, i) => {
                 sum += weekMap.get(i) || 0;

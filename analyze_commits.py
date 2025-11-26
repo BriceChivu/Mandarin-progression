@@ -110,16 +110,22 @@ while current_date <= end_date:
 hours = [date_hours[date] for date in complete_dates]
 commits = [len(date_sessions[date]) for date in complete_dates]  # Fixed: use length of sessions list
 
-# Write daily summary to CSV
-with open('public/daily_summary.csv', 'w', newline='') as f:
-    writer = csv.DictWriter(f, fieldnames=['date', 'hours', 'commits'])
-    writer.writeheader()
-    for date, hour, commit in zip(complete_dates, hours, commits):
-        writer.writerow({
-            'date': date,
-            'hours': hour,
-            'commits': commit
-        })
+# Read classroom classes (1 hour per row)
+class_csv_path = 'public/classroom_collab_with_ben.csv'
+class_sessions = 0
+class_hours = 0.0
+try:
+    with open(class_csv_path, 'r', newline='') as cf:
+        reader = csv.DictReader(cf)
+        for _ in reader:
+            class_sessions += 1
+    class_hours = float(class_sessions)  # 1 hour per class
+except FileNotFoundError:
+    class_sessions = 0
+    class_hours = 0.0
+
+# Intentionally do NOT write any daily summary CSV here (we must not modify public/daily_summary.csv
+# and we will not create any alternative daily_summary file). The graph remains git-only.
 
 # Print daily summary to terminal
 print("\nDaily Streaming Summary:")
@@ -130,16 +136,23 @@ for date, hour, commit in zip(complete_dates, hours, commits):
     if hour > 0:  # Only show days with activity
         print(f"{date:<12} {hour:>8.2f} {commit:>10d}")
 print("-" * 50)
-total_hours = sum(hours)
+
+# Git-derived totals
+git_total_hours = sum(hours)
 total_sessions = sum(commits)
 total_days = len(complete_dates)
 active_days = sum(1 for h in hours if h > 0)
-avg_hours_per_session = total_hours / total_sessions if total_sessions > 0 else 0
-avg_hours_per_day = total_hours / total_days if total_days > 0 else 0
-avg_hours_per_active_day = total_hours / active_days if active_days > 0 else 0
+avg_hours_per_session = git_total_hours / total_sessions if total_sessions > 0 else 0
+avg_hours_per_day = git_total_hours / total_days if total_days > 0 else 0
+avg_hours_per_active_day = git_total_hours / active_days if active_days > 0 else 0
 
-print(f"{'Total:':<12} {total_hours:>8.2f} {total_sessions:>10d}")
+# Overall total includes class hours (do not include class hours in the graph or any daily_summary CSV)
+overall_total_hours = git_total_hours + class_hours
+
+print(f"{'Total:':<12} {overall_total_hours:>8.2f} {total_sessions:>10d}")
 print() 
+# Additional line showing class hours
+print(f"{'Class hours:':<12} {class_hours:>8.2f}")
 print(f"{'Avg/Session:':<12} {avg_hours_per_session:>8.2f}")
 print(f"{'Avg/Day:':<12} {avg_hours_per_day:>8.2f}")
 print(f"{'Avg/Active:':<12} {avg_hours_per_active_day:>8.2f}")
